@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>ISF Argentina - Reporte de Evaluación 360</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="admin/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="admin/css/sb-admin-2.css" rel="stylesheet">
+  <link href="css/reporte.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-gradient-secondary topbar mb-4 static-top shadow">
+
+          <!-- Topbar Navbar -->
+          <ul class="navbar-nav ml-auto">
+            <div class="sidebar-brand-icon rotate-n-15">
+              <i class="fas fas fa-chart-line"></i>
+            </div>
+            <div class="sidebar-brand-text mx-3">Reporte de Evaluación</sup></div>
+          </ul>
+
+        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Page Heading -->
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Reporte de evaluación 360 de <span id="nombre-user"></span></h1>
+            <a href="#" id="exportar-pdf" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Exportar Reporte</a>
+          </div>
+
+          <!-- Content Row -->
+          <div class="row">
+
+            <!-- Descripcion -->
+            <div class="col-md-12 mb-4">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-2">¿Cómo leer este reporte?</div>
+                    </div>
+                    <div class="col-auto text-sm">
+                      <p>Este reporte se ha generado a partir de las respuestas recibidas por compañeros y compañeras, junto con tus propias respuestas sobre distintas áreas evaluadas.</p>
+                      <ul>
+                        <li>Comenzando por el gráfico de puntuaciones donde se resumen todas las métricas calculadas podrás encontrar algunas conclusiones de interés.</li>
+                        <li>Luego se presentan las oportunidades de conexión para fortalecer los vínculos del equipo.</li>
+                        <li>Finalmente se muestran gráficos específicos donde podrás hacer foco para analizar algunos aspectos de la evaluación.</li>
+                      </ul> 
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- Content Row -->
+          <div class="row">
+
+            <!-- Skills Chart -->
+            <div class="col-lg-7">
+              <div class="card shadow mb-4">
+                <!-- Card Header -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Puntuaciones recibidas y autopercibidas</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                  <div class="chart-area pt-4" id="radar-scores"></div>
+                  <div class="mt-2">
+                    <table class="table text-xs">
+                      <tr>
+                        <td class="text-primary">Puntuaciones recibidas y autopercibidas</td>
+                        <td class="text-muted">Aquí encontrarás el puntaje máximo, mínimo y promedio recibido en cada área, junto con el promedio global y el puntaje autopercibido.</td>
+                        <td>Tips para interpretar el gráfico: <ul>
+                          <li>Prestar atención a las categorías en las que tuviste promedio más bajo de respuesta. (se puede filtrar el puntaje promedio haciendo doble-click en la leyenda)</li>
+                          <li>Cotejar la diferencia entre el auto puntaje y los promedios. (también es últil filtrar sólo esos puntajes o ver el gráfico de Potenciales puntos ciegos)</li>
+                          <li>Prestar atención a respuestas en la que el puntaje mínimo baja abruptamente. Si el promedio es alto, puede significar que ese mínimo es la impresión de una persona y, por ende, una oportunidad para conversar!</li>
+                          </ul>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+             <!-- Skills leyenda -->
+             <div class="col-lg-5">
+              <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Conceptos evaluados</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <table class="table table-striped text-sm" id="tabla-skills">
+                      <!-- <thead>
+                        <tr>
+                          <th>ID</th>
+                          <th>Concepto</th>
+                          <th>Descripción</th>
+                        </tr>
+                      </thead>
+                      -->
+                      <tbody>
+                      </tbody>
+                    </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Row -->
+          <div class="row">
+            <div class="col mb-4">
+              <!-- Conexiones -->
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Oportunidad de conexión</h6>
+                </div>
+                <div class="card-body">
+                  <div id="oportunidad-conexiones"></div>
+                  <div class="mt-2">
+                    <table class="table text-xs">
+                      <tr>
+                        <td class="text-primary">Oportunidad de conexión</td>
+                        <td class="text-muted">Este mapa presenta a Evaluador@s en cada fila y a los Evaluad@s en cada columna, permitiendo visualizar el porcentaje de respuestas que pudieron evaluar. Un valor de 100% indica que quien evalúa ha podido puntuar en todas las áreas a la persona evaluada.</td>
+                        <td>Tips para interpretar el gráfico: <ul>
+                          <li>Encontrarse como Evaluador@s en su fila correspondiente (fila con números en rojo) y analizar qué celdas son más oscuras (valores más cercanos al 0%). Viendo usuari@s que corresponden a esas columnas analizadas se puede decir que existe una oportunidad para trabajar con ell@s. </li>
+                          <li>Repetir el mismo proceso que el anterior, pero seleccionando la columna propia (columna con números en rojo) para identificar usuari@s que no hayan podido puntuarte en todas las áreas (celdas oscuras).</li>
+                          <li>A nivel global, es posible determinar aquell@s que tienen poca interacción con otr@s (columnas muy oscuras), posibilitando la integración en nuevos proyectos y así conocerse mejor.</li>
+                          </ul>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Content Row -->
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <!-- Highest -->
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Áreas más fuertes</h6>
+                </div>
+                <div class="card-body">
+                  <div id="highest-scores"></div>
+                  <div class="mt-2">
+                    <table class="table text-xs">
+                      <tr>
+                        <td class="text-primary">Áreas más fuertes</td>
+                        <td class="text-muted">Se presentan las áreas donde has recibido en promedio las mejores puntuaciones.</td>
+                        <td>Tips para interpretar los gráficos: <ul>
+                          <li>Entre las áreas más fuertes se ve en cuáles has recibido mejores opiniones de compañeros y compañeras. Felicitaciones!</li>
+                          </ul>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+              <!-- Lowest -->
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Áreas a desarrollar</h6>
+                </div>
+                <div class="card-body">
+                  <div id="lowest-scores"></div>
+                  <div class="mt-2">
+                    <table class="table text-xs">
+                      <tr>
+                        <td class="text-primary">Áreas a desarrollar</td>
+                        <td class="text-muted">Se presentan las áreas donde has recibido en promedio las puntuaciones más bajas.</td>
+                        <td>Tips para interpretar los gráficos: <ul>
+                          <li>Entre las áreas a desarrollar existe una potencial oportunidad para mejorar, aunque esto no significa que sean puntuaciones malas, simplemente son las cuales que seguramente puedas apuntar esfuerzos para trabajarlas.</li>
+                          </ul>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Content Row -->
+          <div class="row">
+            <div class="col-lg-6 mb-4">
+              <!-- Blindspots -->
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Potenciales puntos ciegos</h6>
+                </div>
+                <div class="card-body">
+                  <div id="blindspots-bar"></div>
+                  <div class="mt-2">
+                    <table class="table text-xs">
+                      <tr>
+                        <td class="text-primary">Potenciales puntos ciegos</td>
+                        <td class="text-muted">Aquí encontrarás aquellas áreas donde existe mayor diferencia entre el promedio recibido y tu autopercepción.</td>
+                        <td>Tips para interpretar el gráfico: <ul>
+                          <li>Si observás áreas con mucha diferencia entre las barras (promedio recibido y puntaje autopercibido), estaría bueno charlarlo con el equipo para intentar reducir la brecha para la próxima.</li>
+                          <li>Las áreas están ordenadas por diferencia de puntuación, así que siempre conviene analizar primero las de arriba.</li>
+                          <li>Sólo se presentan las diferencias donde el puntaje autopercibido es mayor al recibido, por lo cual es posible que no figure área a revisar.</li>
+                          </ul>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+              <!-- avg vs global bar -->
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Potenciales áreas a mejorar</h6>
+                </div>
+                <div class="card-body">
+                  <div id="avgdistance-bar"></div>
+                  <div class="mt-2">
+                    <table class="table text-xs">
+                      <tr>
+                        <td class="text-primary">Potenciales áreas a mejorar</td>
+                        <td class="text-muted">Similar al diagrama de áreas a desarrollar, pero aquí se ordenan según distancia de tu puntuación recibida respecto al promedio global de cada área.</td>
+                        <td>Tips para interpretar el gráfico: <ul>
+                          <li>Las áreas que aparecen arriba serán aquellas con mayor distancia al promedio, por lo cual indica que estás más alejado de la media del equipo.</li>
+                          <li>Una distancia corta no indica que no haya nada por mejorar, quizá el promedio del área es de por sí bajo.</li>
+                          <li>Sólo se presentan las diferencias donde el puntaje recibido es menor al promedio global del área, por lo cual es posible que no figure área a revisar.</li>
+                          </ul>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <footer class="sticky-footer bg-white">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright &copy; ISF Argentina
+              <script type="text/javascript">
+                var today = new Date()
+                var year = today.getFullYear()
+                document.write(year)
+              </script>
+            </span>
+          </div>
+        </div>
+      </footer>
+      <!-- End of Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+<!-- Modal Failures -->
+<div class="modal fade" id="edit-failures-modal" tabindex="-1" role="dialog" aria-labelledby="edit-failures-modal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Personalizar fallas detectadas</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" id="edit-failures-submit" class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="admin/vendor/jquery/jquery.min.js"></script>
+  <script src="admin/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="admin/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="admin/js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!--Librería para exportar PDF (TODO)
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+    -->
+
+  <!-- Page level custom scripts -->
+  <script src="js/reporte.js"></script>
+
+</body>
+
+</html>

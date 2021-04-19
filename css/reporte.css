@@ -1,0 +1,37 @@
+#tabla-skills td {
+  padding: 0.25rem;
+  font-size: 0.8rem;
+}
+#tabla-skills span {
+  padding: 0.25rem;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: visible;
+  }
+
+  .svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+.main-svg {
+  overflow: visible !important; /* fuerza que se vean los labels fuera del canvas y no los corte*/
+}
+
+.chart-area {
+    max-width: 100%;
+    margin: auto;
+    height: 820px;
+}
+
+.plot-container {
+  text-align: center;
+}
