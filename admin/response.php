@@ -59,6 +59,7 @@ if (isset($_POST['accion']) && $_POST['accion'] == 'generar-reportes') {
 
 // Enviar Reportes
 if (isset($_POST['accion']) && $_POST['accion'] == 'enviar-reportes') {
+	$count = 0;
     foreach($_POST["userid"] as $uid) {
         $userjson = loadUserFile($uid);
         // Envio de mails
@@ -67,9 +68,10 @@ if (isset($_POST['accion']) && $_POST['accion'] == 'enviar-reportes') {
             $return['msg'] = 'Al menos un email no pudo ser enviado. Revisar los logs.';
             break;
         }
+		$count++;
     }
     $return['status'] = 'ok';
-    $return['msg'] = 'Reportes enviados';
+    $return['msg'] = $count . ' reportes enviados';
 }
 
 
@@ -326,7 +328,7 @@ function calcularAvgGlobal($users) {
 // Envio de reportes por mail
 function enviarMailReporte($userdata) {
     error_log("Enviando reporte de " . $userdata->{"nombre"} . " a " . $userdata->{"mail"} . " (" . getUserHash($userdata->{"rowid"}) . ").");
-    $linkreporte = 'http://staff.isf-argentina.org/evaluacion360/?uid=' . getUserHash($userdata->{"rowid"});
+    $linkreporte = 'https://staff.isf-argentina.org/evaluacion-360/?uid=' . getUserHash($userdata->{"rowid"});
     $mail = new PHPMailer(true);
 
     try {
