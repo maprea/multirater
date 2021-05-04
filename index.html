@@ -18,6 +18,7 @@
   <!-- Custom styles for this template-->
   <link href="admin/css/sb-admin-2.css" rel="stylesheet">
   <link href="css/reporte.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
 
 </head>
 
@@ -64,7 +65,7 @@
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-warning text-uppercase mb-2">¿Cómo leer este reporte?</div>
+                      <div class="text-sm font-weight-bold text-warning text-uppercase mb-2">¿Cómo leer este reporte?</div>
                     </div>
                     <div class="col-auto text-sm">
                       <p>Este reporte se ha generado a partir de las respuestas recibidas por compañeros y compañeras, junto con tus propias respuestas sobre distintas áreas evaluadas.</p>
@@ -86,7 +87,7 @@
           <div class="row">
 
             <!-- Skills Chart -->
-            <div class="col-lg-7">
+            <div class="col-lg-8">
               <div class="card shadow mb-4">
                 <!-- Card Header -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -94,9 +95,8 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                  <div class="chart-area pt-4" id="radar-scores"></div>
                   <div class="mt-2">
-                    <table class="table text-xs">
+                    <table class="table text-sm">
                       <tr>
                         <td class="text-primary">Puntuaciones recibidas y autopercibidas</td>
                         <td class="text-muted">Aquí encontrarás el puntaje máximo, mínimo y promedio recibido en cada área, junto con el promedio global y el puntaje autopercibido.</td>
@@ -109,12 +109,13 @@
                       </tr>
                     </table>
                   </div>
+                  <div class="chart-area" id="radar-scores"></div>				  
                 </div>
               </div>
             </div>
 
              <!-- Skills leyenda -->
-             <div class="col-lg-5">
+             <div class="col-lg-4">
               <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -148,9 +149,9 @@
                   <h6 class="m-0 font-weight-bold text-primary">Oportunidad de conexión</h6>
                 </div>
                 <div class="card-body">
-                  <div id="oportunidad-conexiones"></div>
+                  
                   <div class="mt-2">
-                    <table class="table text-xs">
+                    <table class="table text-sm">
                       <tr>
                         <td class="text-primary">Oportunidad de conexión</td>
                         <td class="text-muted">Este mapa presenta a Evaluador@s en cada fila y a los Evaluad@s en cada columna, permitiendo visualizar el porcentaje de respuestas que pudieron evaluar. Un valor de 100% indica que quien evalúa ha podido puntuar en todas las áreas a la persona evaluada.</td>
@@ -163,6 +164,8 @@
                       </tr>
                     </table>
                   </div>
+				  
+				  <div class="chart-area" id="oportunidad-conexiones"></div>
                 </div>
               </div>
             </div>
@@ -177,9 +180,9 @@
                   <h6 class="m-0 font-weight-bold text-primary">Áreas más fuertes</h6>
                 </div>
                 <div class="card-body">
-                  <div id="highest-scores"></div>
+                  
                   <div class="mt-2">
-                    <table class="table text-xs">
+                    <table class="table text-sm">
                       <tr>
                         <td class="text-primary">Áreas más fuertes</td>
                         <td class="text-muted">Se presentan las áreas donde has recibido en promedio las mejores puntuaciones.</td>
@@ -190,6 +193,7 @@
                       </tr>
                     </table>
                   </div>
+				  <div class="chart-area" id="highest-scores"></div>
                 </div>
               </div>
             </div>
@@ -201,9 +205,9 @@
                   <h6 class="m-0 font-weight-bold text-primary">Áreas a desarrollar</h6>
                 </div>
                 <div class="card-body">
-                  <div id="lowest-scores"></div>
+                  
                   <div class="mt-2">
-                    <table class="table text-xs">
+                    <table class="table text-sm">
                       <tr>
                         <td class="text-primary">Áreas a desarrollar</td>
                         <td class="text-muted">Se presentan las áreas donde has recibido en promedio las puntuaciones más bajas.</td>
@@ -214,6 +218,7 @@
                       </tr>
                     </table>
                   </div>
+				  <div class="chart-area" id="lowest-scores"></div>
                 </div>
               </div>
             </div>
@@ -229,9 +234,9 @@
                   <h6 class="m-0 font-weight-bold text-primary">Potenciales puntos ciegos</h6>
                 </div>
                 <div class="card-body">
-                  <div id="blindspots-bar"></div>
+                  
                   <div class="mt-2">
-                    <table class="table text-xs">
+                    <table class="table text-sm">
                       <tr>
                         <td class="text-primary">Potenciales puntos ciegos</td>
                         <td class="text-muted">Aquí encontrarás aquellas áreas donde existe mayor diferencia entre el promedio recibido y tu autopercepción.</td>
@@ -244,6 +249,7 @@
                       </tr>
                     </table>
                   </div>
+				  <div class="chart-area" id="blindspots-bar"></div>
                 </div>
               </div>
             </div>
@@ -255,9 +261,9 @@
                   <h6 class="m-0 font-weight-bold text-primary">Potenciales áreas a mejorar</h6>
                 </div>
                 <div class="card-body">
-                  <div id="avgdistance-bar"></div>
+                  
                   <div class="mt-2">
-                    <table class="table text-xs">
+                    <table class="table text-sm">
                       <tr>
                         <td class="text-primary">Potenciales áreas a mejorar</td>
                         <td class="text-muted">Similar al diagrama de áreas a desarrollar, pero aquí se ordenan según distancia de tu puntuación recibida respecto al promedio global de cada área.</td>
@@ -270,6 +276,7 @@
                       </tr>
                     </table>
                   </div>
+				  <div class="chart-area" id="avgdistance-bar"></div>
                 </div>
               </div>
             </div>

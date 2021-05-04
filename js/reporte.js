@@ -51,10 +51,10 @@ fillSkillTable = function(preguntas) {
   let tablecontent = '';
   $.map(preguntas, q => {
     tablecontent += '<tr><td><span class="badge badge-info">' + q.info.id + '</span></td>';
-    tablecontent += '<td><b>' + q.info.titulo + '</b></td>';
-    tablecontent += '<td>' + q.info.descripcion + '</td></tr>';
+    tablecontent += '<td><span data-toggle="tooltip" data-placement="right" data-html="true" title="' + q.info.descripcion + '"><b>' + q.info.titulo + '</b> </span></td></tr>';
   });
   $('#tabla-skills tbody').html(tablecontent);
+  $('[data-toggle="tooltip"]').tooltip();  
 }
 
 
@@ -71,7 +71,8 @@ drawRadarScores = function(userScores) {
     polar: {
       angularaxis: {
         tickfont: {
-          size: 10,
+          size: 14,
+		  family: 'Poppins',
         },
         automargin: true,
         tickangle: 0,
@@ -85,12 +86,20 @@ drawRadarScores = function(userScores) {
         gridcolor: 'white',
         gridwidth: 2,
         visible: true,
-        range: [1, 5], // rango de 1 a 5 de las habilidades
+        range: [0, 5], // rango de 0 a 5 de las habilidades
         color: 'gray',
         showline: false
       },
       bgcolor: 'rgb(245,245,245)' // color de fondo
-    }
+    },
+	legend: {
+		x: 1,
+		y: 1,
+		font: {
+			family: 'Poppins',
+			size: 16,
+		}
+	},
   };
   
   // Dibuja el chart con plotly
@@ -142,15 +151,15 @@ radarChartData = function(userScores) {
 drawConexiones = function(conexiones, currentuser) {
   // Config del layout del heatmap
   const layout = {
-    width: '1000',
-    height: '100%',
+    width: '1200',
+    height: '600',
     autosize: true,
     //title: 'Oportunidad de conexiones',
     annotations: [],
     xaxis: {
       title: {
         text: 'Evaluad@s',
-        font: { color: '#369', size: 18 },
+        font: { color: '#369', size: 18, family: "Poppins", },
       },
       ticks: '',
       //categoryorder: 'category ascending',
@@ -159,7 +168,7 @@ drawConexiones = function(conexiones, currentuser) {
     yaxis: {
       title: {
         text: 'Evaluador@s',
-        font: { color: '#369', size: 18 },
+        font: { color: '#369', size: 18, family: "Poppins" },
         standoff: 25
       },
       automargin: true,
@@ -173,9 +182,10 @@ drawConexiones = function(conexiones, currentuser) {
     for (let j = 0; j < chartData[0].x.length; j++) {
       let evaluade = chartData[0].x[j];
       let evalua = chartData[0].y[i];
-      let color = '#666';
+	  let valor = chartData[0].z[i][j];
+      let color = ((valor > 0.5)? '#333' : '#fff');
       if (currentuser == evalua || currentuser == evaluade) {
-        color = '#c60'
+        color = '#f60'
       }
       layout.annotations.push({
         xref: 'x1',
@@ -183,8 +193,12 @@ drawConexiones = function(conexiones, currentuser) {
         showarrow: false,
         x: chartData[0].x[j],
         y: chartData[0].y[i],
-        text: Math.round(chartData[0].z[i][j] * 100) + '%',
-        font: { color: color },
+        text: Math.round(valor * 100) + '%',
+        font: { 
+			color: color,
+			size: 12,
+			family: "Poppins",
+		},
       });
     }
   }
@@ -241,7 +255,6 @@ drawHighLow = function(scores) {
       zeroline: false,
       range: [1, 5],
     },
-    //barmode: 'group',
   };
 
   // Dibuja el chart con plotly
@@ -302,6 +315,14 @@ drawPotentialBars = function(scores) {
       range: [1, 5],
     },
     barmode: 'group',
+	legend: {
+		x: 1,
+		y: 1,
+		font: {
+			family: 'Poppins',
+			size: 16,
+		}
+	},
   };
 
   // Dibuja el chart con plotly
