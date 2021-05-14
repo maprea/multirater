@@ -223,7 +223,8 @@ function loadUserFile($rowid) {
 }
 
 function getUserHash($rowid) {
-    return md5($rowid . date("Y"));
+	// Genera un hash unico para cada mes-año
+    return md5($rowid . date("Ym"));
 }
 
 

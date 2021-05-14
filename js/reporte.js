@@ -109,15 +109,22 @@ drawRadarScores = function(userScores) {
 
 // Datos para el chart del radar
 radarChartData = function(userScores) {
+  let colorMap = {
+    'max_score': '#0099ff',
+    'avg_score': '#522E91',
+    'avg_global': '#EE3124',
+    'self_score': '#00AB4E',
+    'min_score': '#FFDD00',
+  };
   let groupMap = {
-    'Puntaje máximo': 'max_score',
-    'Puntaje promedio': 'avg_score',
-    'Promedio Global': 'avg_global',
-    'Puntaje propio': 'self_score',
-    'Puntaje mínimo': 'min_score',
+    'max_score': 'Puntaje máximo',
+    'avg_score': 'Puntaje promedio',
+    'avg_global': 'Promedio Global',
+    'self_score': 'Puntaje propio',
+    'min_score': 'Puntaje mínimo',
   };
   // Datos del chart
-  return $.map(groupMap, (field_name, title) => ({
+  return $.map(groupMap, (title, field_name) => ({
           type: 'scatterpolar',
           mode: 'lines+markers+text',
           // Se agrega el skill 1 al final, para cerrar el poligono
@@ -127,16 +134,17 @@ radarChartData = function(userScores) {
           //theta: userScores.map(s => s.info.id).concat(userScores.map(s => s.info.id)[0]),
           name: title,
           visible: true,
-          opacity: 0.25,
+		  fillcolor: colorMap[field_name],
+          opacity: 0.15,
           fill: "toself",
           line: {
             width: 2,
             dash: 'dot',
-            shape: 'spline' // hace un smooth de la linea
-            // color: 'red'
+            shape: 'spline', // hace un smooth de la linea
           },
           marker: {
-            size: 8 // tamaño del punto (?)
+			color: colorMap[field_name],
+			size: 8, // tamaño del punto (?)
           },
           // template html del tooltip
           hovertemplate: '<b>%{theta}</b>' + '<br>%{r:.2f}<br>'
@@ -159,7 +167,7 @@ drawConexiones = function(conexiones, currentuser) {
     xaxis: {
       title: {
         text: 'Evaluad@s',
-        font: { color: '#369', size: 18, family: "Poppins", },
+        font: { color: '#0099ff', size: 18, family: "Poppins", },
       },
       ticks: '',
       //categoryorder: 'category ascending',
@@ -168,7 +176,7 @@ drawConexiones = function(conexiones, currentuser) {
     yaxis: {
       title: {
         text: 'Evaluador@s',
-        font: { color: '#369', size: 18, family: "Poppins" },
+        font: { color: '#0099ff', size: 18, family: "Poppins" },
         standoff: 25
       },
       automargin: true,
@@ -185,7 +193,7 @@ drawConexiones = function(conexiones, currentuser) {
 	  let valor = chartData[0].z[i][j];
       let color = ((valor > 0.5)? '#333' : '#fff');
       if (currentuser == evalua || currentuser == evaluade) {
-        color = '#f60'
+        color = '#FAA61A';
       }
       layout.annotations.push({
         xref: 'x1',
@@ -212,7 +220,7 @@ heatmapChartData = function(conexiones) {
   // Colorscale
   let scaleseq = d3.scaleSequential()
   .domain([0, 1])
-  .interpolator(d3.interpolateBlues);   // escalas de D3: https://github.com/d3/d3-scale-chromatic
+  .interpolator(d3.interpolate('#fff', '#00AEEF'));   // escalas de D3: https://github.com/d3/d3-scale-chromatic
   let colscale = d3.range(0, 1.1, .1).map( x => [ x.toString(), scaleseq(1-x) ])
 
   // Datos del chart
@@ -265,10 +273,10 @@ drawHighLow = function(scores) {
 // Datos para los charts de high/low scores
 chartDataHighLow = function(scores, highest) {
   let ordered = scores.sort( (a,b) => d3.ascending(a.avg_score, b.avg_score) ).slice(0,5).reverse();
-  let color = '#b66';
+  let color = '#EE3124';
   if (highest) {
     ordered = scores.sort( (a,b) => d3.descending(a.avg_score, b.avg_score) ).slice(0,5).reverse();
-    color = '#6b6';
+    color = '#A6CE39';
   }
   const data = ordered.map( d => d.avg_score.toFixed(2) );
   const labels = ordered.map( d => d.info.id + '<br>' + formatTextWrap(d.info.titulo,15) );
@@ -283,7 +291,7 @@ chartDataHighLow = function(scores, highest) {
     hoverinfo: 'y+x',
     //mode: 'lines+markers+text',
     marker: {
-      opacity: 0.6,
+      opacity: 0.7,
       color: color,
       line: {
         color: 'rgb(8,48,107)',
@@ -321,7 +329,8 @@ drawPotentialBars = function(scores) {
 		font: {
 			family: 'Poppins',
 			size: 16,
-		}
+		},
+		traceorder: 'reversed',
 	},
   };
 
@@ -334,7 +343,9 @@ drawPotentialBars = function(scores) {
 chartDataPotential = function(scores, chart) {
   let ordered = scores.filter(d => (d.self_score - d.avg_score) > 0)
     .sort( (a,b) => d3.descending(a.self_score - a.avg_score, b.self_score - b.avg_score) ).slice(0,5).reverse();
-  let color1 = d3.hsl("steelblue");
+  //let color1 = d3.hsl("steelblue");
+  let color1 = '#812990';
+  let color2 = '#522E91';
   let nombre = { 
     trace1:  'Autopercibido', 
     trace2: 'Promedio recibido' 
@@ -345,26 +356,30 @@ chartDataPotential = function(scores, chart) {
     ordered = scores.filter(d => (d.avg_global - d.avg_score) > 0)
       .sort( (a,b) => d3.descending(a.avg_global - a.avg_score, b.avg_global - b.avg_score) )
       .slice(0,5).reverse();
-    color1 = d3.hsl("DarkCyan");
+    //color1 = d3.hsl("DarkCyan");
+	color1 = '#F47920';
+	color2 = '#FCAF17';
     nombre = { 
-      trace1:  'Promedio recibido ', 
+      trace1:  'Promedio Recibido ', 
       trace2: 'Promedio Global', 
     };
     data1 = ordered.map( d => d.avg_score.toFixed(2) );
     data2 = ordered.map( d => d.avg_global.toFixed(2) );
   }
-  let color2 = color1.copy();
-  color2.h +=15;
+  //let color2 = color1.copy();
+  //color2.h +=15;
 
   const traces = [ {
     data: data1,
-    opacity: 0.6,
-    color: color1.toString(),
+    opacity: 0.8,
+    //color: color1.toString(),
+	color: color1,
     nombre: nombre.trace1,
   }, {
     data: data2,
-    opacity: 0.9,
-    color: color2.toString(),
+    opacity: 0.8,
+    //color: color2.toString(),
+	color: color2,
     nombre: nombre.trace2,
   }];
   const labels = ordered.map( d => d.info.id + '<br>' + formatTextWrap(d.info.titulo,15) );
