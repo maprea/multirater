@@ -344,7 +344,7 @@ chartDataPotential = function(scores, chart) {
   let ordered = scores.filter(d => (d.self_score - d.avg_score) > 0)
     .sort( (a,b) => d3.descending(a.self_score - a.avg_score, b.self_score - b.avg_score) ).slice(0,5).reverse();
   //let color1 = d3.hsl("steelblue");
-  let color1 = '#812990';
+  let color1 = '#666';
   let color2 = '#522E91';
   let nombre = { 
     trace1:  'Autopercibido', 
