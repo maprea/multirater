@@ -110,17 +110,17 @@ drawRadarScores = function(userScores) {
 // Datos para el chart del radar
 radarChartData = function(userScores) {
   let colorMap = {
-    'max_score': '#0099ff',
-    'avg_score': '#522E91',
-    'avg_global': '#EE3124',
-    'self_score': '#00AB4E',
-    'min_score': '#FFDD00',
+    'max_score': { 'color': '#00f', 'opacity': 0.5, 'fill': 'toself', 'fillcolor': '#66aaff', 'line': 'solid' },
+    'avg_score': { 'color': '#7333EF', 'opacity': 1, 'fill': 'none', 'fillcolor': '#fff', 'line': 'solid' },
+    'avg_global': { 'color': '#EE3124', 'opacity': 1, 'fill': 'none', 'fillcolor': '#fff', 'line': 'dot' },
+    'self_score': { 'color': '#00AB4E', 'opacity': 1, 'fill': 'none', 'fillcolor': '#fff', 'line': 'solid' },
+    'min_score': { 'color': '#6699ff', 'opacity': 0.7, 'fill': 'toself', 'fillcolor': '#ccc', 'line': 'solid' },
   };
   let groupMap = {
+	'avg_global': 'Promedio Global',
+	'self_score': 'Puntaje propio',
     'max_score': 'Puntaje máximo',
     'avg_score': 'Puntaje promedio',
-    'avg_global': 'Promedio Global',
-    'self_score': 'Puntaje propio',
     'min_score': 'Puntaje mínimo',
   };
   // Datos del chart
@@ -134,16 +134,17 @@ radarChartData = function(userScores) {
           //theta: userScores.map(s => s.info.id).concat(userScores.map(s => s.info.id)[0]),
           name: title,
           visible: true,
-		  fillcolor: colorMap[field_name],
-          opacity: 0.15,
-          fill: "toself",
+		  fillcolor: colorMap[field_name]['fillcolor'],
+          opacity: colorMap[field_name]['opacity'],
+          fill: colorMap[field_name]['fill'],
           line: {
             width: 2,
-            dash: 'dot',
+            dash: colorMap[field_name]['line'],
             shape: 'spline', // hace un smooth de la linea
           },
           marker: {
-			color: colorMap[field_name],
+			color: colorMap[field_name]['color'],
+			opacity: 1,
 			size: 8, // tamaño del punto (?)
           },
           // template html del tooltip
