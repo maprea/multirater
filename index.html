@@ -53,7 +53,8 @@
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Reporte de evaluación 360 de <span id="nombre-user"></span></h1>
-            <a href="#" id="exportar-pdf" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Exportar Reporte</a>
+			<button data-toggle="modal" data-target="#respuestas-realizadas" type="button" class="btn btn-info"><i class="fas fa-address-card fa-sm text-white-50"></i> Ver Respuestas</button>
+			<a href="#" id="exportar-pdf" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Exportar Reporte</a>
           </div>
 
           <!-- Content Row -->
@@ -299,25 +300,20 @@
   </a>
 
 <!-- Modal Failures -->
-<div class="modal fade" id="edit-failures-modal" tabindex="-1" role="dialog" aria-labelledby="edit-failures-modal" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+<div class="modal fade" id="respuestas-realizadas" tabindex="-1" role="dialog" aria-labelledby="respuestas-realizadas" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Personalizar fallas detectadas</h5>
+        <h5 class="modal-title">Respuestas de la evaluación</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <form>
-          <div class="form-group">
-            
-          </div>
-        </form>
+	  
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="button" id="edit-failures-submit" class="btn btn-primary">Guardar cambios</button>
       </div>
     </div>
   </div>

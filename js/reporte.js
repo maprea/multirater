@@ -18,6 +18,7 @@ $(document).ready(function() {
     d3.json('data-users/' + uidhash + '.json')
   ]).then( function (data) {
     let userdata = data[0];
+	console.log(userdata);
     $('#nombre-user').html(userdata.nombre);
     // Se dibujan los contenidos
     fillSkillTable(Object.values(userdata.respuestas));
@@ -25,6 +26,8 @@ $(document).ready(function() {
     drawConexiones(userdata.conexiones, userdata.nombre_preguntas);
     drawHighLow(Object.values(userdata.respuestas));
     drawPotentialBars(Object.values(userdata.respuestas));
+	// Modal de respuestas
+	loadRespuestas(userdata.respuestas);
   });
 
   // TODO: Exportar PDF
@@ -422,4 +425,24 @@ const formatTextWrap = (text, maxLineLength) => {
       return result ? result + ` ${word}` : `${word}`;
     }
   }, '');
+}
+
+
+
+// Modal de respuestas
+loadRespuestas = function (respuestas) {
+	let tabla = '<table class="table table-striped"><thead><tr><th>Concepto</th><th>Respuestas</th></tr></thead><tbody>';
+		$.each(respuestas, function(id, respuesta) {
+			const titulo = respuesta.info.titulo;
+			const selfscore = respuesta.self_score;
+			const scores = respuesta.scores_realizados;
+			tabla += '<tr><td>' + respuesta.info.id + ' ' + titulo + '</td><td>';
+			tabla += '<span class="respuesta-self">Autopuntaje: ' + selfscore + ' </span><br>';
+			$.each(scores, function(nombre, score) {
+				tabla += '<span class="respuesta-nombre">' + nombre + ':</span> <span class="respuesta-score">' + score + '</span> <br> ';
+			});
+			tabla += '</td></tr>';
+	});
+	tabla += '</tbody></table>';
+	$('#respuestas-realizadas .modal-body').html(tabla);
 }

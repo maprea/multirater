@@ -94,3 +94,13 @@ body {
 .titulo-tips {
 	font-weight: bold;
 }
+
+.respuesta-self {
+	color: #EE3124
+}
+.respuesta-nombre {
+	font-weight: bold
+}
+.respuesta-score {
+	color: #00AEEF
+}

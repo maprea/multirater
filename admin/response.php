@@ -156,7 +156,7 @@ function parseResultados($calcular_scores = false) {
         // Validaciones
         $salida['status'] = true;
         $salida['msg'] = "<b>Validación de resultados incorrecta</b>";
-		/*
+		
         // Cantidad de personas evaluadas vs respuestas enviadas
         if (count($salida['users']) != count($salida['users_en_preguntas'])) {
             $salida['status'] = false;
@@ -176,7 +176,7 @@ function parseResultados($calcular_scores = false) {
             $salida['status'] = false;
             $salida['msg'] .= "<br>La cantidad de opciones en alguna de las preguntas no coincide con la cantidad de respuestas registradas.";
         }
-		*/
+		
         if ($salida['status']) {
             $salida['msg'] = "La validación es correcta, pero verifique que no existan nombres inconsistentes entre las personas.";
         }
