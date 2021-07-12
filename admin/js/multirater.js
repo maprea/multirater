@@ -107,6 +107,7 @@ $(document).ready(function() {
     // Evento para enviar reportes
     $('#reports-form').on('submit', function(e) {
         e.preventDefault();
+		$("#reports-submit").attr("disabled", true);
         $("#reports-results").hide();
         $.post({
             url: 'response.php',
@@ -120,6 +121,7 @@ $(document).ready(function() {
                 }
                 $("#reports-results").html(ret.msg);
                 $("#reports-results").show();
+				$("#reports-submit").attr("disabled", false);
             }
         });
         

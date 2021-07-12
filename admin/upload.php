@@ -1,6 +1,6 @@
 <?php
 $return = [];
-$dest = 'data/resultados.csv';
+$dest = __DIR__ . '/data/resultados.csv';
 
 if (isset($_POST['cargar-resultados']) && $_POST['cargar-resultados'] == 'seee' && $_FILES['uploaded-file']) {
     $fname = $_FILES['uploaded-file']['name'];

@@ -59,6 +59,7 @@ if (isset($_POST['accion']) && $_POST['accion'] == 'generar-reportes') {
 
 // Enviar Reportes
 if (isset($_POST['accion']) && $_POST['accion'] == 'enviar-reportes') {
+	$count = 0;
     foreach($_POST["userid"] as $uid) {
         $userjson = loadUserFile($uid);
         // Envio de mails
@@ -67,9 +68,10 @@ if (isset($_POST['accion']) && $_POST['accion'] == 'enviar-reportes') {
             $return['msg'] = 'Al menos un email no pudo ser enviado. Revisar los logs.';
             break;
         }
+		$count++;
     }
     $return['status'] = 'ok';
-    $return['msg'] = 'Reportes enviados';
+    $return['msg'] = $count . ' reportes enviados';
 }
 
 
@@ -154,6 +156,7 @@ function parseResultados($calcular_scores = false) {
         // Validaciones
         $salida['status'] = true;
         $salida['msg'] = "<b>Validación de resultados incorrecta</b>";
+		
         // Cantidad de personas evaluadas vs respuestas enviadas
         if (count($salida['users']) != count($salida['users_en_preguntas'])) {
             $salida['status'] = false;
@@ -173,7 +176,7 @@ function parseResultados($calcular_scores = false) {
             $salida['status'] = false;
             $salida['msg'] .= "<br>La cantidad de opciones en alguna de las preguntas no coincide con la cantidad de respuestas registradas.";
         }
-
+		
         if ($salida['status']) {
             $salida['msg'] = "La validación es correcta, pero verifique que no existan nombres inconsistentes entre las personas.";
         }
@@ -182,7 +185,6 @@ function parseResultados($calcular_scores = false) {
         $salida['msg'] = 'No existe archivo de resultados cargado para validar.';
     }
 
-    
 
     return $salida;
 }
@@ -221,7 +223,8 @@ function loadUserFile($rowid) {
 }
 
 function getUserHash($rowid) {
-    return md5($rowid . date("Y"));
+	// Genera un hash unico para cada mes-año
+    return md5($rowid . date("Ym"));
 }
 
 
@@ -326,7 +329,7 @@ function calcularAvgGlobal($users) {
 // Envio de reportes por mail
 function enviarMailReporte($userdata) {
     error_log("Enviando reporte de " . $userdata->{"nombre"} . " a " . $userdata->{"mail"} . " (" . getUserHash($userdata->{"rowid"}) . ").");
-    $linkreporte = 'http://staff.isf-argentina.org/evaluacion360/?uid=' . getUserHash($userdata->{"rowid"});
+    $linkreporte = 'https://staff.isf-argentina.org/evaluacion-360/?uid=' . getUserHash($userdata->{"rowid"});
     $mail = new PHPMailer(true);
 
     try {

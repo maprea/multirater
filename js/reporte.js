@@ -18,6 +18,7 @@ $(document).ready(function() {
     d3.json('data-users/' + uidhash + '.json')
   ]).then( function (data) {
     let userdata = data[0];
+	
     $('#nombre-user').html(userdata.nombre);
     // Se dibujan los contenidos
     fillSkillTable(Object.values(userdata.respuestas));
@@ -25,6 +26,8 @@ $(document).ready(function() {
     drawConexiones(userdata.conexiones, userdata.nombre_preguntas);
     drawHighLow(Object.values(userdata.respuestas));
     drawPotentialBars(Object.values(userdata.respuestas));
+	// Modal de respuestas
+	loadRespuestas(userdata.respuestas);
   });
 
   // TODO: Exportar PDF
@@ -51,10 +54,10 @@ fillSkillTable = function(preguntas) {
   let tablecontent = '';
   $.map(preguntas, q => {
     tablecontent += '<tr><td><span class="badge badge-info">' + q.info.id + '</span></td>';
-    tablecontent += '<td><b>' + q.info.titulo + '</b></td>';
-    tablecontent += '<td>' + q.info.descripcion + '</td></tr>';
+    tablecontent += '<td><span data-toggle="tooltip" data-placement="right" data-html="true" title="' + q.info.descripcion + '"><b>' + q.info.titulo + '</b> </span></td></tr>';
   });
   $('#tabla-skills tbody').html(tablecontent);
+  $('[data-toggle="tooltip"]').tooltip();  
 }
 
 
@@ -71,7 +74,8 @@ drawRadarScores = function(userScores) {
     polar: {
       angularaxis: {
         tickfont: {
-          size: 10,
+          size: 14,
+		  family: 'Poppins',
         },
         automargin: true,
         tickangle: 0,
@@ -85,12 +89,20 @@ drawRadarScores = function(userScores) {
         gridcolor: 'white',
         gridwidth: 2,
         visible: true,
-        range: [1, 5], // rango de 1 a 5 de las habilidades
+        range: [0, 5], // rango de 0 a 5 de las habilidades
         color: 'gray',
         showline: false
       },
       bgcolor: 'rgb(245,245,245)' // color de fondo
-    }
+    },
+	legend: {
+		x: 1,
+		y: 1,
+		font: {
+			family: 'Poppins',
+			size: 16,
+		}
+	},
   };
   
   // Dibuja el chart con plotly
@@ -100,15 +112,22 @@ drawRadarScores = function(userScores) {
 
 // Datos para el chart del radar
 radarChartData = function(userScores) {
+  let colorMap = {
+    'max_score': { 'color': '#00f', 'opacity': 0.5, 'fill': 'toself', 'fillcolor': '#66aaff', 'line': 'solid' },
+    'avg_score': { 'color': '#7333EF', 'opacity': 1, 'fill': 'none', 'fillcolor': '#fff', 'line': 'solid' },
+    'avg_global': { 'color': '#EE3124', 'opacity': 1, 'fill': 'none', 'fillcolor': '#fff', 'line': 'dot' },
+    'self_score': { 'color': '#00AB4E', 'opacity': 1, 'fill': 'none', 'fillcolor': '#fff', 'line': 'solid' },
+    'min_score': { 'color': '#6699ff', 'opacity': 0.7, 'fill': 'toself', 'fillcolor': '#ccc', 'line': 'solid' },
+  };
   let groupMap = {
-    'Puntaje máximo': 'max_score',
-    'Puntaje promedio': 'avg_score',
-    'Promedio Global': 'avg_global',
-    'Puntaje propio': 'self_score',
-    'Puntaje mínimo': 'min_score',
+	'avg_global': 'Promedio Global',
+	'self_score': 'Puntaje propio',
+    'max_score': 'Puntaje máximo',
+    'avg_score': 'Puntaje promedio',
+    'min_score': 'Puntaje mínimo',
   };
   // Datos del chart
-  return $.map(groupMap, (field_name, title) => ({
+  return $.map(groupMap, (title, field_name) => ({
           type: 'scatterpolar',
           mode: 'lines+markers+text',
           // Se agrega el skill 1 al final, para cerrar el poligono
@@ -118,16 +137,18 @@ radarChartData = function(userScores) {
           //theta: userScores.map(s => s.info.id).concat(userScores.map(s => s.info.id)[0]),
           name: title,
           visible: true,
-          opacity: 0.25,
-          fill: "toself",
+		  fillcolor: colorMap[field_name]['fillcolor'],
+          opacity: colorMap[field_name]['opacity'],
+          fill: colorMap[field_name]['fill'],
           line: {
             width: 2,
-            dash: 'dot',
-            shape: 'spline' // hace un smooth de la linea
-            // color: 'red'
+            dash: colorMap[field_name]['line'],
+            shape: 'spline', // hace un smooth de la linea
           },
           marker: {
-            size: 8 // tamaño del punto (?)
+			color: colorMap[field_name]['color'],
+			opacity: 1,
+			size: 8, // tamaño del punto (?)
           },
           // template html del tooltip
           hovertemplate: '<b>%{theta}</b>' + '<br>%{r:.2f}<br>'
@@ -142,15 +163,15 @@ radarChartData = function(userScores) {
 drawConexiones = function(conexiones, currentuser) {
   // Config del layout del heatmap
   const layout = {
-    width: '1000',
-    height: '100%',
+    width: '1200',
+    height: '600',
     autosize: true,
     //title: 'Oportunidad de conexiones',
     annotations: [],
     xaxis: {
       title: {
         text: 'Evaluad@s',
-        font: { color: '#369', size: 18 },
+        font: { color: '#0099ff', size: 18, family: "Poppins", },
       },
       ticks: '',
       //categoryorder: 'category ascending',
@@ -159,7 +180,7 @@ drawConexiones = function(conexiones, currentuser) {
     yaxis: {
       title: {
         text: 'Evaluador@s',
-        font: { color: '#369', size: 18 },
+        font: { color: '#0099ff', size: 18, family: "Poppins" },
         standoff: 25
       },
       automargin: true,
@@ -173,9 +194,10 @@ drawConexiones = function(conexiones, currentuser) {
     for (let j = 0; j < chartData[0].x.length; j++) {
       let evaluade = chartData[0].x[j];
       let evalua = chartData[0].y[i];
-      let color = '#666';
+	  let valor = chartData[0].z[i][j];
+      let color = ((valor > 0.5)? '#333' : '#fff');
       if (currentuser == evalua || currentuser == evaluade) {
-        color = '#c60'
+        color = '#FAA61A';
       }
       layout.annotations.push({
         xref: 'x1',
@@ -183,8 +205,12 @@ drawConexiones = function(conexiones, currentuser) {
         showarrow: false,
         x: chartData[0].x[j],
         y: chartData[0].y[i],
-        text: Math.round(chartData[0].z[i][j] * 100) + '%',
-        font: { color: color },
+        text: Math.round(valor * 100) + '%',
+        font: { 
+			color: color,
+			size: 12,
+			family: "Poppins",
+		},
       });
     }
   }
@@ -198,7 +224,7 @@ heatmapChartData = function(conexiones) {
   // Colorscale
   let scaleseq = d3.scaleSequential()
   .domain([0, 1])
-  .interpolator(d3.interpolateBlues);   // escalas de D3: https://github.com/d3/d3-scale-chromatic
+  .interpolator(d3.interpolate('#fff', '#00AEEF'));   // escalas de D3: https://github.com/d3/d3-scale-chromatic
   let colscale = d3.range(0, 1.1, .1).map( x => [ x.toString(), scaleseq(1-x) ])
 
   // Datos del chart
@@ -241,7 +267,6 @@ drawHighLow = function(scores) {
       zeroline: false,
       range: [1, 5],
     },
-    //barmode: 'group',
   };
 
   // Dibuja el chart con plotly
@@ -252,10 +277,10 @@ drawHighLow = function(scores) {
 // Datos para los charts de high/low scores
 chartDataHighLow = function(scores, highest) {
   let ordered = scores.sort( (a,b) => d3.ascending(a.avg_score, b.avg_score) ).slice(0,5).reverse();
-  let color = '#b66';
+  let color = '#EE3124';
   if (highest) {
     ordered = scores.sort( (a,b) => d3.descending(a.avg_score, b.avg_score) ).slice(0,5).reverse();
-    color = '#6b6';
+    color = '#A6CE39';
   }
   const data = ordered.map( d => d.avg_score.toFixed(2) );
   const labels = ordered.map( d => d.info.id + '<br>' + formatTextWrap(d.info.titulo,15) );
@@ -270,7 +295,7 @@ chartDataHighLow = function(scores, highest) {
     hoverinfo: 'y+x',
     //mode: 'lines+markers+text',
     marker: {
-      opacity: 0.6,
+      opacity: 0.7,
       color: color,
       line: {
         color: 'rgb(8,48,107)',
@@ -302,6 +327,15 @@ drawPotentialBars = function(scores) {
       range: [1, 5],
     },
     barmode: 'group',
+	legend: {
+		x: 1,
+		y: 1,
+		font: {
+			family: 'Poppins',
+			size: 16,
+		},
+		traceorder: 'reversed',
+	},
   };
 
   // Dibuja el chart con plotly
@@ -313,7 +347,9 @@ drawPotentialBars = function(scores) {
 chartDataPotential = function(scores, chart) {
   let ordered = scores.filter(d => (d.self_score - d.avg_score) > 0)
     .sort( (a,b) => d3.descending(a.self_score - a.avg_score, b.self_score - b.avg_score) ).slice(0,5).reverse();
-  let color1 = d3.hsl("steelblue");
+  //let color1 = d3.hsl("steelblue");
+  let color1 = '#666';
+  let color2 = '#522E91';
   let nombre = { 
     trace1:  'Autopercibido', 
     trace2: 'Promedio recibido' 
@@ -324,26 +360,30 @@ chartDataPotential = function(scores, chart) {
     ordered = scores.filter(d => (d.avg_global - d.avg_score) > 0)
       .sort( (a,b) => d3.descending(a.avg_global - a.avg_score, b.avg_global - b.avg_score) )
       .slice(0,5).reverse();
-    color1 = d3.hsl("DarkCyan");
+    //color1 = d3.hsl("DarkCyan");
+	color1 = '#F47920';
+	color2 = '#FCAF17';
     nombre = { 
-      trace1:  'Promedio recibido ', 
+      trace1:  'Promedio Recibido ', 
       trace2: 'Promedio Global', 
     };
     data1 = ordered.map( d => d.avg_score.toFixed(2) );
     data2 = ordered.map( d => d.avg_global.toFixed(2) );
   }
-  let color2 = color1.copy();
-  color2.h +=15;
+  //let color2 = color1.copy();
+  //color2.h +=15;
 
   const traces = [ {
     data: data1,
-    opacity: 0.6,
-    color: color1.toString(),
+    opacity: 0.8,
+    //color: color1.toString(),
+	color: color1,
     nombre: nombre.trace1,
   }, {
     data: data2,
-    opacity: 0.9,
-    color: color2.toString(),
+    opacity: 0.8,
+    //color: color2.toString(),
+	color: color2,
     nombre: nombre.trace2,
   }];
   const labels = ordered.map( d => d.info.id + '<br>' + formatTextWrap(d.info.titulo,15) );
@@ -385,4 +425,24 @@ const formatTextWrap = (text, maxLineLength) => {
       return result ? result + ` ${word}` : `${word}`;
     }
   }, '');
+}
+
+
+
+// Modal de respuestas
+loadRespuestas = function (respuestas) {
+	let tabla = '<table class="table table-striped"><thead><tr><th>Concepto</th><th>Respuestas</th></tr></thead><tbody>';
+		$.each(respuestas, function(id, respuesta) {
+			const titulo = respuesta.info.titulo;
+			const selfscore = respuesta.self_score;
+			const scores = respuesta.scores_realizados;
+			tabla += '<tr><td>' + respuesta.info.id + ' ' + titulo + '</td><td>';
+			tabla += '<span class="respuesta-self">Autopuntaje: ' + selfscore + ' </span><br>';
+			$.each(scores, function(nombre, score) {
+				tabla += '<span class="respuesta-nombre">' + nombre + ':</span> <span class="respuesta-score">' + score + '</span> <br> ';
+			});
+			tabla += '</td></tr>';
+	});
+	tabla += '</tbody></table>';
+	$('#respuestas-realizadas .modal-body').html(tabla);
 }
