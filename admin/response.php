@@ -185,7 +185,6 @@ function parseResultados($calcular_scores = false) {
         $salida['msg'] = 'No existe archivo de resultados cargado para validar.';
     }
 
-    
 
     return $salida;
 }

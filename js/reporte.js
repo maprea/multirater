@@ -18,7 +18,7 @@ $(document).ready(function() {
     d3.json('data-users/' + uidhash + '.json')
   ]).then( function (data) {
     let userdata = data[0];
-	console.log(userdata);
+	
     $('#nombre-user').html(userdata.nombre);
     // Se dibujan los contenidos
     fillSkillTable(Object.values(userdata.respuestas));
