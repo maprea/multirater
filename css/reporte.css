@@ -1,0 +1,106 @@
+body {
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+}
+
+.tooltip-inner {
+	font-size: 1rem;
+}
+
+.card-header h6 {
+	font-size: 1.2rem;
+}
+
+.card-body .table td {
+	border-top: 0px;
+}
+.card-body .table td.text-primary {
+	font-weight: bold;
+}
+
+#tabla-skills td {
+  padding: 0.5rem;
+  /* font-size: 0.8rem; */
+}
+#tabla-skills span {
+  padding: 0.5rem;
+  font-size: 100%;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: visible;
+  }
+
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+.main-svg {
+  overflow: visible !important; /* fuerza que se vean los labels fuera del canvas y no los corte*/
+}
+
+.chart-area {
+    max-width: 100%;
+    margin: auto;
+	border-top: 1px solid #e3e6f0;
+}
+
+#radar-scores {
+    height: 820px;
+}
+
+#oportunidad-conexiones {
+	height: 600px;
+}
+
+.plot-container {
+  text-align: center;
+}
+
+.bg-gradient-secondary {
+	background-color: #00AEEF;
+	background-image: linear-gradient(180deg, #00AEEF 10%, #00AEEF 100%);
+	color: #FFF;
+}
+
+.text-warning {
+	color: #FFDD00 !important;
+}
+.border-left-warning {
+	border-left: 0.25rem solid #FFDD00 !important;
+}
+
+.btn-primary {
+	background-color: #0099ff;
+    border-color: #0099ff;	
+}
+
+.text-primary {
+	color: #0099ff !important;
+}
+
+.badge-info {
+	background-color: #FFDD00;
+}
+
+.titulo-tips {
+	font-weight: bold;
+}
+
+.respuesta-self {
+	color: #EE3124
+}
+.respuesta-nombre {
+	font-weight: bold
+}
+.respuesta-score {
+	color: #00AEEF
+}
