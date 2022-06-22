@@ -112,6 +112,7 @@ function parseResultados($calcular_scores = false) {
             $user["nombre"] = trim($row[2]);    // <- EDITAR ACA SI EL CAMPO DEL USUARIE ES OTRO EN EL FORM DE GOOGLE
             $user["mail"] = trim($row[1]);      // <- EDITAR ACA SI EL CAMPO DEL MAIL ES OTRO EN EL FORM DE GOOGLE
             $user["rowid"] = $rowid;
+			$user["fecha"] = date("m/Y");
             $usersaved = loadUserFile($rowid);
             $user["nombre_preguntas"] = "";
             $user["nombre_preguntas"] = $usersaved->{"nombre_preguntas"};
@@ -348,7 +349,7 @@ function enviarMailReporte($userdata) {
         $clientSecret = 'REDACTED_GOOGLE_CLIENT_SECRET';
         // Obtained by configuring and running get_oauth_token.php
         // after setting up an app in Google Developer Console.
-        $refreshToken = 'REDACTED_GOOGLE_REFRESH_TOKEN';
+        $refreshToken = 'xxxxxxxxxxxxxxxx';
         //Create a new OAuth2 provider instance
         $provider = new Google(
             [

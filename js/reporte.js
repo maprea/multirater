@@ -20,6 +20,7 @@ $(document).ready(function() {
     let userdata = data[0];
 	
     $('#nombre-user').html(userdata.nombre);
+	$('#fecha').html(userdata.fecha);
     // Se dibujan los contenidos
     fillSkillTable(Object.values(userdata.respuestas));
     drawRadarScores(Object.values(userdata.respuestas));
@@ -28,6 +29,13 @@ $(document).ready(function() {
     drawPotentialBars(Object.values(userdata.respuestas));
 	// Modal de respuestas
 	loadRespuestas(userdata.respuestas);
+	// Boton de reporte previo
+	if ('reporte_previo' in userdata) {
+		$('#reporte-previo-btn').on('click', function(e) {
+			window.location.href = '?uid=' + userdata.reporte_previo;
+		});
+		$('#reporte-previo-btn').css('display','inline-block');
+	}
   });
 
   // TODO: Exportar PDF

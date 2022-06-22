@@ -104,3 +104,7 @@ body {
 .respuesta-score {
 	color: #00AEEF
 }
+
+#reporte-previo-btn {
+	display: none;
+}

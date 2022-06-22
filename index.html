@@ -41,7 +41,7 @@
             <div class="sidebar-brand-icon rotate-n-15">
               <i class="fas fas fa-chart-line"></i>
             </div>
-            <div class="sidebar-brand-text mx-3">Reporte de Evaluación</sup></div>
+            <div class="sidebar-brand-text mx-3">Reporte de Evaluación <span id="fecha"></span></sup></div>
           </ul>
 
         </nav>
@@ -53,8 +53,9 @@
           <!-- Page Heading -->
           <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="h3 mb-0 text-gray-800">Reporte de evaluación 360 de <span id="nombre-user"></span></h1>
-			<button data-toggle="modal" data-target="#respuestas-realizadas" type="button" class="btn btn-info"><i class="fas fa-address-card fa-sm text-white-50"></i> Ver Respuestas</button>
-			<a href="#" id="exportar-pdf" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Exportar Reporte</a>
+			<button data-toggle="modal" data-target="#respuestas-realizadas" type="button" class="d-sm-inline-block btn btn-sm btn-info"><i class="fas fa-address-card fa-sm text-white-50"></i> Ver Respuestas</button>
+			<button id="reporte-previo-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-archive fa-sm text-white-50"></i> Ver Reporte Anterior</button>
+			<button id="exportar-pdf" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Exportar Reporte</button>
           </div>
 
           <!-- Content Row -->
