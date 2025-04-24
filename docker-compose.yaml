@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  staff-web:
+    container_name: staff-web
+    image: staff-web
+    restart: always
+    environment:
+      - PHP_DISPLAY_ERRORS=0
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
+    ports:
+      - "8088:80"
+    volumes:
+      - type: bind
+        source: ./public/data-users
+        target: /var/www/html/evaluacion-360/data-users
+    develop:
+      watch:
+        - action: rebuild
+          path: ./public
+          ignore: 
+            - admin/data
+            - data-users
+          target: /var/www/html/evaluacion-360/public
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

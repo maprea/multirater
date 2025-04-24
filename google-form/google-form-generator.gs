@@ -32,12 +32,12 @@ function createForm() {
 
   var form = FormApp.create('Encuesta 360 - ISF')
   
-  form.setDescription('Las siguientes preguntas conforman la encuesta de evaluación 360 para analizar el rendimiento dentro de la organización. Por favor, contestar todas las preguntas completando para cada persona (cada fila dentro de las respuestas) la valoración que consideres. En caso de no haber tenido suficiente relación con esa persona para evaluarla en cierto aspecto, responder con una valuación de 0. No olvides también evaluarte a vos mism@!');
+  form.setDescription('A continuación dejamos las preguntas, categorías y definiciones presentes en la encuesta 360°. Es importante que puedas revisar con detenimiento las categorías que se evalúan y sus definiciones explícitas, esto permitirá que entre todxs tengamos un criterio homogéneo y las dudas a la hora de responder sean menores, lo que te disminuye el tiempo en la respuesta. Es el momento de levantar todas las oportunidades de mejora para que sea un instrumento realmente útil. Te agradecemos la dedicación y aportes!');
   
   datausers = loadDataUsers(spreadsheet);
   dataqs = loadDataQs(spreadsheet);
-  Logger.log(datausers);
-  Logger.log(dataqs);
+  // Logger.log(datausers);
+  // Logger.log(dataqs);
 
   var item = form.addTextItem();
   item.setTitle('Ingresá tu correo electrónico')
@@ -52,15 +52,25 @@ function createForm() {
   dataqs.forEach(function (q) {
     datausers.sort(() => Math.random() - 0.5);
 
-    //form.addSectionHeaderItem()
-    //  .setTitle(q);
-    
-    var item = form.addGridItem();
-    item.setTitle(q['id'] + ' ' + q['titulo'] + '. ' + q['descripcion'])
-      .setRows(datausers)
-      //.setColumns([0, 1, 2, 3, 4, 5])
-      // Version con labels
-      .setColumns(['0 (no puedo evaluar)', '1 (nunca)', '2 (muy poco)', '3 (a veces)', '4 (casi siempre)', '5 (siempre)'])
-      .setRequired(true);
+    if (Number.isInteger(Number(q['id']))) {
+      form.addSectionHeaderItem().setTitle(q['titulo']);
+    } else {
+      
+      var item = form.addGridItem();
+      item.setTitle(q['id'] + ' ' + q['titulo'] + '. ' + q['descripcion'])
+        .setRows(datausers)
+        //.setColumns([0, 1, 2, 3, 4, 5])
+        // Version con labels
+        .setColumns(['0 (no puedo evaluar)', '1 (nunca)', '2 (muy poco)', '3 (a veces)', '4 (casi siempre)', '5 (siempre)'])
+        .setRequired(true);
+    }
+  });
+
+  // Comentarios texto libre
+  form.addSectionHeaderItem()
+    .setTitle('COMENTARIOS ADICIONALES')
+    .setHelpText('Esta sección es opcional y podés utilizarla para ampliar información sobre el puntaje que hayas asignado a las personas.');
+  datausers.forEach(function (u) {
+    form.addParagraphTextItem().setTitle('# Comentarios adicionales [' + u + ']:')
   });
 }

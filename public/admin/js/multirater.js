@@ -153,17 +153,17 @@ validateAndLoadResults = function() {
 
             // Carga datos de usuaries
             var usersdata = '';
-            $.each(ret.users, function(i, item) {
+            $.each(ret.users, function(i, user) {
                 selectid = i;
-                nombrepreguntas = item.nombre_preguntas;
-                usersdata += '<tr><td>' + item.nombre + '</td><td>' + item.mail + '</td><td>';
+                nombrepreguntas = user.nombre_preguntas;
+                usersdata += '<tr><td>' + user.nombre + '</td><td>' + user.mail + '</td><td>';
                 usersdata += '<select class="form-control users_pregs_select" name="' + selectid + '" id="' + selectid + '"';
                 usersdata += 'onchange="validateAssignedUsers();">';
-                $.each(ret.users_en_preguntas, function(i, item) {
-                    if (nombrepreguntas == item) {
-                        usersdata += '<option selected value="' + item + '">' + item + '</option>';
+                $.each(ret.users_en_preguntas, function(i, nombre) {
+                    if ((nombrepreguntas && nombrepreguntas == nombre) || (user.nombre == nombre)) {
+                        usersdata += '<option selected value="' + nombre + '">' + nombre + '</option>';
                     } else {
-                        usersdata += '<option value="' + item + '">' + item + '</option>';
+                        usersdata += '<option value="' + nombre + '">' + nombre + '</option>';
                     }
                 });
                 usersdata += '</select></td></tr>';

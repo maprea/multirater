@@ -1,4 +1,8 @@
 <?php
+
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 $return = [];
 $dest = __DIR__ . '/data/resultados.csv';
 
@@ -16,7 +20,7 @@ if (isset($_POST['cargar-resultados']) && $_POST['cargar-resultados'] == 'seee' 
         }
     } else {
         $return["status"] = "error";
-        $return["msg"] = "Extebsion no soportada. Debe ser CSV";
+        $return["msg"] = "Extension no soportada. Debe ser CSV";
     }
 }
 

@@ -10,70 +10,84 @@ require_once __DIR__ . '/vendor/PHPMailer/src/PHPMailer.php';
 require_once __DIR__ . '/vendor/PHPMailer/src/SMTP.php';
 require_once  __DIR__ . '/vendor/PHPMailer/vendor/autoload.php';
 
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+// ini_set('error_log', '/var/log/apache2/php_errors.log');
+ini_set('date.timezone', 'America/Buenos_Aires');
 
 $return = [];
 
-// Validacion de resultados
-if (isset($_POST['accion']) && $_POST['accion'] == 'validar') {
-    $resultados = parseResultados();
-    $return['status'] = $resultados['status'] ? 'ok' : 'error';
-    $return['msg'] = $resultados['msg'];
-    $return['preguntas'] = $resultados['preguntas_sin_user'];
-    $return['users'] = $resultados['users'];
-    $return['users_en_preguntas'] = $resultados['users_en_preguntas'];
-}
+try {
 
-// Asignar nombres
-if (isset($_POST['accion']) && $_POST['accion'] == 'asignar-nombres') {
-    unset($_POST['accion']);
-    
-    $resultados = parseResultados();
-    $users_maps = [];
-    foreach( $_POST as $id => $value ) {
-        $resultados['users'][$id]["nombre_preguntas"] = $value;
+    // Validacion de resultados
+    if (isset($_POST['accion']) && $_POST['accion'] == 'validar') {
+        $resultados = parseResultados();
+        $return['status'] = $resultados['status'] ? 'ok' : 'error';
+        $return['msg'] = $resultados['msg'];
+        $return['preguntas'] = $resultados['preguntas_sin_user'];
+        $return['users'] = $resultados['users'];
+        $return['users_en_preguntas'] = $resultados['users_en_preguntas'];
     }
-          
-    // Se guardan mapeos
-    if (saveUsersFiles($resultados['users'])) {
-        $return['status'] = 'ok';
-    } else {
-        $return['msg'] = 'No fue posible actualizar las asignaciones de nombres.';
-        $return['status'] = 'error';
-    }
-}
 
-// Generar Reportes
-if (isset($_POST['accion']) && $_POST['accion'] == 'generar-reportes') {
-    $resultados = parseResultados(true);
-    // Se guardan calculos de puntuaciones (datos completos para reporte)
-    if (saveUsersFiles($resultados['users'])) {
-        $return['status'] = 'ok';
-    } else {
-        $return['msg'] = 'No fue posible guardar la generacion de resultados parcial.';
-        $return['status'] = 'error';
-    }
-    $return['status'] = $resultados['status'] ? 'ok' : 'error';
-    $return['msg'] = $resultados['msg'];
-    $return['users'] = $resultados['users'];
-}
-
-// Enviar Reportes
-if (isset($_POST['accion']) && $_POST['accion'] == 'enviar-reportes') {
-	$count = 0;
-    foreach($_POST["userid"] as $uid) {
-        $userjson = loadUserFile($uid);
-        // Envio de mails
-        if (!enviarMailReporte($userjson)) {
-            $return['status'] = 'error';
-            $return['msg'] = 'Al menos un email no pudo ser enviado. Revisar los logs.';
-            break;
+    // Asignar nombres
+    if (isset($_POST['accion']) && $_POST['accion'] == 'asignar-nombres') {
+        unset($_POST['accion']);
+        
+        $resultados = parseResultados();
+        $users_maps = [];
+        foreach( $_POST as $id => $value ) {
+            $resultados['users'][$id]["nombre_preguntas"] = $value;
         }
-		$count++;
+            
+        // Se guardan mapeos
+        if (saveUsersFiles($resultados['users'])) {
+            $return['status'] = 'ok';
+        } else {
+            $return['msg'] = 'No fue posible actualizar las asignaciones de nombres.';
+            $return['status'] = 'error';
+        }
     }
-    $return['status'] = 'ok';
-    $return['msg'] = $count . ' reportes enviados';
-}
 
+    // Generar Reportes
+    if (isset($_POST['accion']) && $_POST['accion'] == 'generar-reportes') {
+        $resultados = parseResultados(true);
+        // Se guardan calculos de puntuaciones (datos completos para reporte)
+        if (saveUsersFiles($resultados['users'])) {
+            $return['status'] = 'ok';
+        } else {
+            $return['msg'] = 'No fue posible guardar la generacion de resultados parcial.';
+            $return['status'] = 'error';
+        }
+        $return['status'] = $resultados['status'] ? 'ok' : 'error';
+        $return['msg'] = $resultados['msg'];
+        $return['users'] = $resultados['users'];
+    }
+
+    // Enviar Reportes
+    if (isset($_POST['accion']) && $_POST['accion'] == 'enviar-reportes') {
+        $count = 0;
+        foreach($_POST["userid"] as $uid) {
+            $userjson = loadUserFile($uid);
+            // Envio de mails
+            if (!enviarMailReporte($userjson)) {
+                $return['status'] = 'error';
+                $return['msg'] = 'Al menos un email no pudo ser enviado. Revisar los logs.';
+                break;
+            }
+            $count++;
+        }
+        $return['status'] = 'ok';
+        $return['msg'] = $count . ' reportes enviados';
+    }
+
+    echo json_encode($return);
+
+} catch (Exception $e) {
+    error_log($e->getMessage());
+    error_log($e->getTraceAsString());
+    error_log(print_r($return, true));
+}
 
 function parseResultados($calcular_scores = false) {
     $datos = [];
@@ -85,6 +99,8 @@ function parseResultados($calcular_scores = false) {
         }
         fclose($h);
 
+        // Comentarios (columnas que empiezan con #)
+        $headers_comentarios = preg_grep("/^# /", $datos[0]);
         // Preguntas (columnas que empiezan con X.X)
         $salida['preguntas'] = preg_grep("/^(\d+)?\.\d+/", $datos[0]);
         $preguntas_sin_user = [];
@@ -116,9 +132,13 @@ function parseResultados($calcular_scores = false) {
             $usersaved = loadUserFile($rowid);
             $user["nombre_preguntas"] = "";
             $user["nombre_preguntas"] = $usersaved->{"nombre_preguntas"};
+            $user["respuestas"] = [];
+            $user["comentarios"] = [];
+            $user["conexiones"] = [];
             if (isset($usersaved->{"nombre_preguntas"}) && $calcular_scores) {
                 // Si ya esta mapeado user a nombre de respuesta, se computan respuestas de cada user
                 $user["respuestas"] = obtenerPuntuaciones($salida['preguntas'], $row, $user["nombre_preguntas"]);
+                $user["comentarios"] = obtenerComentarios($headers_comentarios, $row, $user["nombre_preguntas"]);
                 $user["conexiones"] = calcularConexiones($user);
             }
             $salida['users'][$user["rowid"]] = $user;
@@ -126,6 +146,7 @@ function parseResultados($calcular_scores = false) {
         $salida['users_en_preguntas'] = array_values(array_unique($users_en_preguntas));
         sort($salida['users_en_preguntas']);
         sort($salida['users']);
+
 
         // Calculo de puntuaciones recibidas del resto
         if ($calcular_scores) {
@@ -151,8 +172,13 @@ function parseResultados($calcular_scores = false) {
             foreach($salida["users"] as $rowid => $user) {
                 $salida["users"][$rowid]["conexiones"] = $conexiones;
             }
+            
+            // Guardar comentarios recibidos
+            foreach($salida["users"] as $rowid => $user) {
+                $salida["users"][$rowid]["comentarios"]["recibidos"] = comentariosRecibidos($salida["users"], $rowid, $user["nombre_preguntas"]);
+            }
         }
-
+        
         
         // Validaciones
         $salida['status'] = true;
@@ -186,15 +212,8 @@ function parseResultados($calcular_scores = false) {
         $salida['msg'] = 'No existe archivo de resultados cargado para validar.';
     }
 
-
     return $salida;
 }
-
-
-echo json_encode($return);
-
-
-
 
 
 // Files de usuaries
@@ -231,6 +250,7 @@ function getUserHash($rowid) {
 
 
 // Helpers para preguntas
+
 function parsePregunta($q) {
     $finId = strpos($q, " ");
     $inicioDesc = strpos($q, ".", $finId);
@@ -267,6 +287,18 @@ function obtenerPuntuaciones($headers, $valores, $uname) {
     return $preguntas;
 }
 
+function obtenerComentarios($headers, $valores, $uname) {
+    $comentarios = [];
+    foreach($headers as $colid => $label) {
+        $destinatario = parseUserDePregunta($label)["user"];
+        if ($destinatario != $uname) {
+            $comentarios["realizados"][$destinatario] = $valores[$colid];
+        }
+    }
+    $comentarios["recibidos"] = [];
+    return $comentarios;
+}
+
 function calcularConexiones($userdata) {
     // Calcula las conexiones del usuarie
     $respuestas = $userdata["respuestas"];
@@ -285,6 +317,18 @@ function calcularConexiones($userdata) {
     return $conexiones;
 }
 
+function comentariosRecibidos($users, $userid, $uname) {
+    // Se computan de los guardados en obtenerComentarios
+    // $users: array de usuarios: $users[i]["comentarios"]["realizados"][<nombre user>] => <comentario>
+    $comentarios_recibidos = $users[$userid]["comentarios"]["recibidos"];
+    foreach($users as $rowid => $user) {
+        if ($rowid != $userid) {
+            $comentarios_recibidos[$user["nombre_preguntas"]] = $user["comentarios"]["realizados"][$uname];
+        }
+    }
+    return $comentarios_recibidos;
+}
+
 function calcularScoreRecibido($users, $userid, $uname) {
     // Calcula el score recibido, computando min, max y avg.
     $respuestas = $users[$userid]["respuestas"];
@@ -292,6 +336,7 @@ function calcularScoreRecibido($users, $userid, $uname) {
         if ($rowid != $userid) {
             foreach($user["respuestas"] as $qid => $r) {
                 $respuestas[$qid]["scores_recibidos"][] = $r["scores_realizados"][$uname];
+                $respuestas[$qid]["scores_recibidos_nombres"][] = $user["nombre_preguntas"];
             }
         }
     }
@@ -346,7 +391,7 @@ function enviarMailReporte($userdata) {
         // Auth
         $email = 'automatizaciones@isf-argentina.org';
         $clientId = 'REDACTED_GOOGLE_CLIENT_ID';
-        $clientSecret = 'REDACTED_GOOGLE_CLIENT_SECRET';
+        $clientSecret = 'GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
         // Obtained by configuring and running get_oauth_token.php
         // after setting up an app in Google Developer Console.
         $refreshToken = 'xxxxxxxxxxxxxxxx';
@@ -391,6 +436,20 @@ function enviarMailReporte($userdata) {
         error_log("El mail no pudo enviarse. Error: {$mail->ErrorInfo}");
         return false;
     }
+}
+
+
+// Helper debug
+
+function saveToFile($data) {
+    $data_users_dir = '../data-users/';
+    if (($h = fopen($data_users_dir . 'debug.json', "w")) !== FALSE) {
+        fwrite($h, json_encode($data));
+        fclose($h);
+    } else {
+        return false;
+    }
+    return true;
 }
 
 ?>

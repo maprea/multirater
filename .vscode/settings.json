@@ -1,0 +1,11 @@
+{
+    "docker.commands.composeUp": [
+
+
+        {
+            "label": "Compose Up",
+            "template": "${composeCommand} ${configurationFile} up --watch ${detached} ${build}"
+        }
+    ],
+    "docker.dockerComposeDetached": false
+}
