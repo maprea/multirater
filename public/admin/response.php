@@ -389,12 +389,11 @@ function enviarMailReporte($userdata) {
         $mail->Port       = 587;                                    //TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
 
         // Auth
-        $email = 'automatizaciones@isf-argentina.org';
-        $clientId = 'REDACTED_GOOGLE_CLIENT_ID';
-        $clientSecret = 'GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
-        // Obtained by configuring and running get_oauth_token.php
-        // after setting up an app in Google Developer Console.
-        $refreshToken = 'xxxxxxxxxxxxxxxx';
+        $email = getenv('EMAIL_SENDER');
+        $clientId = getenv('GOOGLE_CLIENT_ID');
+        $clientSecret = getenv('GOOGLE_CLIENT_SECRET');
+        // Obtained by configuring and running get_oauth_token.php after setting up an app in Google Developer Console.
+        $refreshToken = getenv('GOOGLE_REFRESH_TOKEN');
         //Create a new OAuth2 provider instance
         $provider = new Google(
             [
