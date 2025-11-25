@@ -29,7 +29,7 @@ $(document).ready(function () {
     drawPotentialBars(Object.values(userdata.respuestas));
 
     // Modal de respuestas
-    loadRespuestas(userdata.respuestas);
+    loadRespuestas(userdata.respuestas, userdata.comentarios);
 
     // Modal de puntuaciones
     loadPuntuaciones(userdata.respuestas, userdata.comentarios);
@@ -437,7 +437,7 @@ const formatTextWrap = (text, maxLineLength) => {
 
 
 // Modal de respuestas
-loadRespuestas = function (respuestas) {
+loadRespuestas = function (respuestas, comentarios) {
   let tabla = '<table class="table table-striped"><thead><tr><th>Concepto</th><th>Respuestas</th></tr></thead><tbody>';
   $.each(respuestas, function (id, respuesta) {
     const titulo = respuesta.info.titulo;
@@ -451,13 +451,26 @@ loadRespuestas = function (respuestas) {
     tabla += '</td></tr>';
   });
   tabla += '</tbody></table>';
-  $('#respuestas-realizadas .modal-body').html(tabla);
+  if (comentarios?.realizados) {
+  let tablaComentarios = '<table class="table table-striped"><thead><tr><th>Comentario adicional para...</th><th>Comentario realizado</th></tr></thead><tbody>';
+    $.each(comentarios.realizados, function (nombre, comentario) {
+      tablaComentarios += '<tr><td>' + nombre + '</td><td>' + comentario + '</td></tr>';
+    });
+    tablaComentarios += '</tbody></table>';
+    $('#respuestas-realizadas .modal-body').html('<div>' + tabla + '<hr>' + tablaComentarios + '</div>');
+  } else {
+    $('#respuestas-realizadas .modal-body').html(tabla);
+  }
 }
 
 
 
-// Modal de puntuaciones
+// Modal de puntuaciones recibidas
 loadPuntuaciones = function (respuestas, comentarios) {
+  if (!Object.values(respuestas)[0].scores_recibidos_nombres) {
+    $("#puntaje-recibido-btn").attr("style", "display: none !important");
+    return;
+  }
   let tabla = '<table class="table table-striped"><thead><tr><th>Concepto</th><th>Puntuaciones recibidas</th></tr></thead><tbody>';
   $.each(respuestas, function (id, respuesta) {
     const titulo = respuesta.info.titulo;
@@ -473,10 +486,14 @@ loadPuntuaciones = function (respuestas, comentarios) {
     tabla += '</td></tr>';
   });
   tabla += '</tbody></table>';
-  let tablaComentarios = '<table class="table table-striped"><thead><tr><th>Comentario adicional de...</th><th>Comentario recibido</th></tr></thead><tbody>';
-  $.each(comentarios.recibidos, function (nombre, comentario) {
-    tablaComentarios += '<tr><td>' + nombre + '</td><td>' + comentario + '</td></tr>';
-  });
-  tablaComentarios += '</tbody></table>';
-  $('#puntajes-recibidos .modal-body').html('<div>' + tabla + '<hr>' + tablaComentarios + '</div>');
+  if (comentarios?.recibidos) {
+    let tablaComentarios = '<table class="table table-striped"><thead><tr><th>Comentario adicional de...</th><th>Comentario recibido</th></tr></thead><tbody>';
+    $.each(comentarios.recibidos, function (nombre, comentario) {
+      tablaComentarios += '<tr><td>' + nombre + '</td><td>' + comentario + '</td></tr>';
+    });
+    tablaComentarios += '</tbody></table>';
+    $('#puntajes-recibidos .modal-body').html('<div>' + tabla + '<hr>' + tablaComentarios + '</div>');
+  } else {
+    $('#puntajes-recibidos .modal-body').html(tabla);
+  }
 }
