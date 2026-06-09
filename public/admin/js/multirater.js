@@ -1,57 +1,51 @@
+// Escapes a value for safe insertion into HTML
+const esc = s => $('<span>').text(String(s ?? '')).html();
+
 $(document).ready(function() {
 
-    /**
-     * Popup de las instrucciones
-     */
     $("#instructions-modal").modal('show');
 
-    /**
-     * Carga de resultados
-     */
+    /* ─── File upload ──────────────────────────────────────────────────────── */
 
-    // Evento para actualizar nombre file en upload modal
     $(".custom-file-input").on("change", function() {
         var fileName = $(this).val().split("\\").pop();
         $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-      });
+    });
 
-    // Evento para cargar resultados
     $('#upload-form').on('submit', function(e) {
         e.preventDefault();
         $("#upload-results").hide();
         $.ajax({
-                url: "upload.php",
-                type: "POST",
-                data:  new FormData(this),
-                contentType: false,
-                cache: false,
-                processData:false,
-                success: function(data) {
-                    let ret = jQuery.parseJSON(data);
-                    if (ret.status == 'ok') {
-                        $("#upload-results").attr('class', 'alert alert-success');
-                        $("#upload-results span").html('Carga de resultados correcta!');
-                        // Validacion de resultados
-                        validateAndLoadResults();
-                    } else {
-                        $("#upload-results").attr('class', 'alert alert-danger');
-                        $("#upload-results span").html(ret.msg);
-                    }
-                    $("#upload-results").show();
-                },
-                error: function(e) {
-                    $("#upload-results span").html(e);
-                    $("#upload-results").show();
+            url: "upload.php",
+            type: "POST",
+            data: new FormData(this),
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(data) {
+                let ret = jQuery.parseJSON(data);
+                if (ret.status == 'ok') {
+                    $("#upload-results").attr('class', 'alert alert-success');
+                    $("#upload-results span").html('Carga de resultados correcta!');
+                    validateAndLoadResults();
+                } else {
+                    $("#upload-results").attr('class', 'alert alert-danger');
+                    $("#upload-results span").html(esc(ret.msg));
                 }
+                $("#upload-results").show();
+            },
+            error: function(e) {
+                $("#upload-results span").html('Error al comunicarse con el servidor.');
+                $("#upload-results").show();
+            }
         });
         $('#upload-form').get(0).reset();
     });
 
-
-    // Validacion de resultados (onload)
     validateAndLoadResults();
 
-    // Actualizar asignaciones
+    /* ─── Name assignments ─────────────────────────────────────────────────── */
+
     $('#actualizar-asignaciones-btn').on('click', function() {
         if ($(this).hasClass('disabled')) {
             $('#actualizar-asignaciones-msg').html('Hay asignaciones duplicadas.');
@@ -64,36 +58,32 @@ $(document).ready(function() {
             success: function(data) {
                 let ret = jQuery.parseJSON(data);
                 if (ret.status == 'ok') {
-                    $('#actualizar-asignaciones-msg').html('Asginaciones actualizadas');
+                    $('#actualizar-asignaciones-msg').html('Asignaciones actualizadas');
                     $('#actualizar-asignaciones-msg').attr('class', 'text-success pr-2');
                 } else {
-                    $('#actualizar-asignaciones-msg').html(ret.msg);
+                    $('#actualizar-asignaciones-msg').html(esc(ret.msg));
                     $('#actualizar-asignaciones-msg').attr('class', 'text-warning pr-2');
                 }
             }
         });
     });
 
-    /**
-     * Generar y enviar reportes
-     */
+    /* ─── Report generation and sending ───────────────────────────────────── */
+
     $('#generar-reportes-link').on('click', function() {
         $.post({
             url: 'response.php',
-            data:  { accion: 'generar-reportes' },
+            data: { accion: 'generar-reportes' },
             success: function(data) {
                 let ret = jQuery.parseJSON(data);
                 if (ret.status != 'ok') {
-                    $('#reports-user-content').html('No se pueden generar los reportes sin tener validación ok.<br>' + ret.msg);
+                    $('#reports-user-content').html('No se pueden generar los reportes sin tener validación ok.<br>' + esc(ret.msg));
                 } else {
-                   // Validacion ok, continua mostrando form
-                   var usersdata = '';
+                    var usersdata = '';
                     $.each(ret.users, function(i, item) {
-                        selectid = i;
-                        nombrepreguntas = item.nombre_preguntas;
-                        usersdata += '<tr><td>' + item.nombre + '</td><td>' + item.mail + '</td>';
-                        usersdata += '<td>' + item.nombre_preguntas + '</td>';
-                        usersdata += '<td><input type="checkbox" name="userid[]" value="' + item.rowid + '" class="form-check-input" id="' + item.rowid + '"></td></tr>';
+                        usersdata += '<tr><td>' + esc(item.nombre) + '</td><td>' + esc(item.mail) + '</td>';
+                        usersdata += '<td>' + esc(item.nombre_preguntas) + '</td>';
+                        usersdata += '<td><input type="checkbox" name="userid[]" value="' + esc(item.rowid) + '" class="form-check-input" id="' + esc(item.rowid) + '"></td></tr>';
                     });
                     $('#tabla-reportes tbody').html(usersdata);
                 }
@@ -104,10 +94,9 @@ $(document).ready(function() {
         $("#reports-modal").modal('show');
     });
 
-    // Evento para enviar reportes
     $('#reports-form').on('submit', function(e) {
         e.preventDefault();
-		$("#reports-submit").attr("disabled", true);
+        $("#reports-submit").attr("disabled", true);
         $("#reports-results").hide();
         $.post({
             url: 'response.php',
@@ -119,29 +108,26 @@ $(document).ready(function() {
                 } else {
                     $("#reports-results").attr('class', 'alert alert-danger');
                 }
-                $("#reports-results").html(ret.msg);
+                $("#reports-results").html(esc(ret.msg));
                 $("#reports-results").show();
-				$("#reports-submit").attr("disabled", false);
+                $("#reports-submit").attr("disabled", false);
             }
         });
-        
-        
         $('#reports-form').get(0).reset();
     });
 
-    // Activa tooltips
     $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
-    })
-  });
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+});
 
-/**
- * Validación de resultados
- */
+
+/* ─── Validation ───────────────────────────────────────────────────────────── */
+
 validateAndLoadResults = function() {
     $.post({
         url: 'response.php',
-        data:  { accion: 'validar' },
+        data: { accion: 'validar' },
         success: function(data) {
             let ret = jQuery.parseJSON(data);
             if (ret.status == 'ok') {
@@ -151,41 +137,38 @@ validateAndLoadResults = function() {
             }
             $("#validation-msg").html(ret.msg);
 
-            // Carga datos de usuaries
             var usersdata = '';
             $.each(ret.users, function(i, user) {
-                selectid = i;
-                nombrepreguntas = user.nombre_preguntas;
-                usersdata += '<tr><td>' + user.nombre + '</td><td>' + user.mail + '</td><td>';
-                usersdata += '<select class="form-control users_pregs_select" name="' + selectid + '" id="' + selectid + '"';
+                let selectid = i;
+                let nombrepreguntas = user.nombre_preguntas;
+                usersdata += '<tr><td>' + esc(user.nombre) + '</td><td>' + esc(user.mail) + '</td><td>';
+                usersdata += '<select class="form-control users_pregs_select" name="' + esc(selectid) + '" id="' + esc(selectid) + '"';
                 usersdata += 'onchange="validateAssignedUsers();">';
                 $.each(ret.users_en_preguntas, function(i, nombre) {
                     if ((nombrepreguntas && nombrepreguntas == nombre) || (user.nombre == nombre)) {
-                        usersdata += '<option selected value="' + nombre + '">' + nombre + '</option>';
+                        usersdata += '<option selected value="' + esc(nombre) + '">' + esc(nombre) + '</option>';
                     } else {
-                        usersdata += '<option value="' + nombre + '">' + nombre + '</option>';
+                        usersdata += '<option value="' + esc(nombre) + '">' + esc(nombre) + '</option>';
                     }
                 });
                 usersdata += '</select></td></tr>';
             });
             $('#tabla-users tbody').html(usersdata);
-            asignacionesOk = validateAssignedUsers();
+            let asignacionesOk = validateAssignedUsers();
 
-            // Carga datos de preguntas
             var qdata = '';
             $.each(ret.preguntas, function(i, item) {
-                qdata += '<tr><td>' + item.id + '</td>';
-                qdata += '<td>' + item.titulo + '</td>';
-                qdata += '<td>' + item.descripcion + '</td>';
-                spanclass = 'class="text-success"';
+                qdata += '<tr><td>' + esc(item.id) + '</td>';
+                qdata += '<td>' + esc(item.titulo) + '</td>';
+                qdata += '<td>' + esc(item.descripcion) + '</td>';
+                let spanclass = 'class="text-success"';
                 if (ret.users.length != item.cant_opciones) {
                     spanclass = 'class="text-danger"';
                 }
-                qdata += '<td ' + spanclass + '>' + item.cant_opciones + '</td></tr>';
+                qdata += '<td ' + spanclass + '>' + esc(item.cant_opciones) + '</td></tr>';
             });
             $('#tabla-preguntas tbody').html(qdata);
 
-            // Activa generacion de reportes
             if (ret.status == 'ok' && asignacionesOk) {
                 $('#generar-reportes-link').removeClass('disabled');
             } else {
@@ -195,16 +178,13 @@ validateAndLoadResults = function() {
     });
 }
 
-// Valida las dropdown de las asignaciones de usuaries
 validateAssignedUsers = function() {
     let usrs = [];
     $('.users_pregs_select').each(function(i) {
         usrs.push($(this).val());
     });
-    usrs_unique = usrs.filter((c, index) => {
-        return usrs.indexOf(c) === index;
-    });
-    valid = usrs.length == usrs_unique.length;
+    let usrs_unique = usrs.filter((c, index) => usrs.indexOf(c) === index);
+    let valid = usrs.length == usrs_unique.length;
     if (valid) {
         $('#actualizar-asignaciones-btn').removeClass('disabled');
     } else {

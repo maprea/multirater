@@ -1,7 +1,9 @@
 
+// Escapes a value for safe insertion into HTML
+const esc = s => $('<span>').text(String(s ?? '')).html();
+
 $(document).ready(function () {
 
-  // Se obtiene el hash del userid
   getParameterFromQstring = function (param) {
     let url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
     for (let i = 0; i < url.length; i++) {
@@ -11,30 +13,32 @@ $(document).ready(function () {
       }
     }
   }
+
   let uidhash = getParameterFromQstring('uid');
 
-  // Carga de datos
+  // Validate hash format before fetching (sha256 = 64 hex chars)
+  if (!uidhash || !/^[a-f0-9]{64}$/.test(uidhash)) {
+    $('#nombre-user').text('Reporte no encontrado.');
+    return;
+  }
+
   Promise.all([
     d3.json('data-users/' + uidhash + '.json')
   ]).then(function (data) {
     let userdata = data[0];
 
-    $('#nombre-user').html(userdata.nombre);
-    $('#fecha').html(userdata.fecha);
-    // Se dibujan los contenidos
+    $('#nombre-user').text(userdata.nombre);
+    $('#fecha').text(userdata.fecha);
+
     fillSkillTable(Object.values(userdata.respuestas));
     drawRadarScores(Object.values(userdata.respuestas));
     drawConexiones(userdata.conexiones, userdata.nombre_preguntas);
     drawHighLow(Object.values(userdata.respuestas));
     drawPotentialBars(Object.values(userdata.respuestas));
 
-    // Modal de respuestas
     loadRespuestas(userdata.respuestas, userdata.comentarios);
-
-    // Modal de puntuaciones
     loadPuntuaciones(userdata.respuestas, userdata.comentarios);
 
-    // Boton de reporte previo
     if ('reporte_previo' in userdata) {
       $('#reporte-previo-btn').on('click', function (e) {
         window.location.href = '?uid=' + userdata.reporte_previo;
@@ -48,32 +52,26 @@ $(document).ready(function () {
     window.print();
   });
 
-  // Activa tooltips
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
   });
 });
 
 
-
-
 fillSkillTable = function (preguntas) {
   let tablecontent = '';
   $.map(preguntas, q => {
-    tablecontent += '<tr><td><span class="badge badge-info">' + q.info.id + '</span></td>';
-    tablecontent += '<td><span data-toggle="tooltip" data-placement="right" data-html="true" title="' + q.info.descripcion + '"><b>' + q.info.titulo + '</b> </span></td></tr>';
+    tablecontent += '<tr><td><span class="badge badge-info">' + esc(q.info.id) + '</span></td>';
+    tablecontent += '<td><span data-toggle="tooltip" data-placement="right" data-html="true" title="' + esc(q.info.descripcion) + '"><b>' + esc(q.info.titulo) + '</b> </span></td></tr>';
   });
   $('#tabla-skills tbody').html(tablecontent);
   $('[data-toggle="tooltip"]').tooltip();
 }
 
 
-/* **************** */
-/* Chart Radar Scores */
-/* **************** */
+/* ─── Radar chart ─────────────────────────────────────────────────────────── */
 
 drawRadarScores = function (userScores) {
-  // Config del layout del polar chart
   const layout = {
     width: '800',
     height: '800',
@@ -96,11 +94,11 @@ drawRadarScores = function (userScores) {
         gridcolor: 'white',
         gridwidth: 2,
         visible: true,
-        range: [0, 5], // rango de 0 a 5 de las habilidades
+        range: [0, 5],
         color: 'gray',
         showline: false
       },
-      bgcolor: 'rgb(245,245,245)' // color de fondo
+      bgcolor: 'rgb(245,245,245)'
     },
     legend: {
       x: 1,
@@ -112,12 +110,9 @@ drawRadarScores = function (userScores) {
     },
   };
 
-  // Dibuja el chart con plotly
   Plotly.newPlot('radar-scores', radarChartData(userScores), layout, { displayModeBar: false, responsive: true });
 }
 
-
-// Datos para el chart del radar
 radarChartData = function (userScores) {
   let colorMap = {
     'max_score': { 'color': '#00f', 'opacity': 0.5, 'fill': 'toself', 'fillcolor': '#66aaff', 'line': 'solid' },
@@ -133,15 +128,12 @@ radarChartData = function (userScores) {
     'avg_score': 'Puntaje promedio',
     'min_score': 'Puntaje mínimo',
   };
-  // Datos del chart
   return $.map(groupMap, (title, field_name) => ({
     type: 'scatterpolar',
     mode: 'lines+markers+text',
-    // Se agrega el skill 1 al final, para cerrar el poligono
+    // Repeat first element to close the polygon
     r: userScores.map(s => s[field_name]).concat(userScores.map(s => s[field_name])[0]),
-    // idem anterior. Agrega el label al final
     theta: userScores.map(s => s.info.id + '<br>' + formatTextWrap(s.info.titulo, 15)).concat(userScores.map(s => s.info.id + '<br>' + formatTextWrap(s.info.titulo, 15))[0]),
-    //theta: userScores.map(s => s.info.id).concat(userScores.map(s => s.info.id)[0]),
     name: title,
     visible: true,
     fillcolor: colorMap[field_name]['fillcolor'],
@@ -150,30 +142,25 @@ radarChartData = function (userScores) {
     line: {
       width: 2,
       dash: colorMap[field_name]['line'],
-      shape: 'spline', // hace un smooth de la linea
+      shape: 'spline',
     },
     marker: {
       color: colorMap[field_name]['color'],
       opacity: 1,
-      size: 8, // tamaño del punto (?)
+      size: 8,
     },
-    // template html del tooltip
     hovertemplate: '<b>%{theta}</b>' + '<br>%{r:.2f}<br>'
   }));
 }
 
 
-/* **************** */
-/* Chart Heatmap */
-/* **************** */
+/* ─── Connection heatmap ──────────────────────────────────────────────────── */
 
 drawConexiones = function (conexiones, currentuser) {
-  // Config del layout del heatmap
   const layout = {
     width: '1200',
     height: '600',
     autosize: true,
-    //title: 'Oportunidad de conexiones',
     annotations: [],
     xaxis: {
       title: {
@@ -181,7 +168,6 @@ drawConexiones = function (conexiones, currentuser) {
         font: { color: '#0099ff', size: 18, family: "Poppins", },
       },
       ticks: '',
-      //categoryorder: 'category ascending',
       side: 'bottom'
     },
     yaxis: {
@@ -222,44 +208,36 @@ drawConexiones = function (conexiones, currentuser) {
     }
   }
 
-  // Dibuja el chart con plotly
   Plotly.newPlot('oportunidad-conexiones', chartData, layout, { displayModeBar: false, responsive: true });
 }
 
-// Datos para el chart del heatmap
 heatmapChartData = function (conexiones) {
-  // Colorscale
+  // Color scale: white → #00AEEF (d3-scale-chromatic)
   let scaleseq = d3.scaleSequential()
     .domain([0, 1])
-    .interpolator(d3.interpolate('#fff', '#00AEEF'));   // escalas de D3: https://github.com/d3/d3-scale-chromatic
+    .interpolator(d3.interpolate('#fff', '#00AEEF'));
   let colscale = d3.range(0, 1.1, .1).map(x => [x.toString(), scaleseq(1 - x)])
 
-  // Datos del chart
   let datos = [];
-  let usuaries = [];
+  let users = [];
   $.each(conexiones, function (nombre, row) {
     datos.push(Object.values(row));
-    usuaries.push(nombre);
+    users.push(nombre);
   });
 
   return [{
-    x: usuaries,
-    y: usuaries,
+    x: users,
+    y: users,
     z: datos,
     type: 'heatmap',
-    //colorscale: 'Blues',
     colorscale: colscale,
   }]
 }
 
 
-
-/* **************** */
-/* Charts High Low */
-/* **************** */
+/* ─── High / low bar charts ───────────────────────────────────────────────── */
 
 drawHighLow = function (scores) {
-  // Config del layout
   const layout = {
     width: '100%',
     height: '100%',
@@ -276,12 +254,10 @@ drawHighLow = function (scores) {
     },
   };
 
-  // Dibuja el chart con plotly
   Plotly.newPlot('highest-scores', chartDataHighLow(scores, true), layout, { displayModeBar: false, responsive: true });
   Plotly.newPlot('lowest-scores', chartDataHighLow(scores, false), layout, { displayModeBar: false, responsive: true });
 }
 
-// Datos para los charts de high/low scores
 chartDataHighLow = function (scores, highest) {
   let ordered = scores.sort((a, b) => d3.ascending(a.avg_score, b.avg_score)).slice(0, 5).reverse();
   let color = '#EE3124';
@@ -300,7 +276,6 @@ chartDataHighLow = function (scores, highest) {
     text: data.map(String),
     textposition: 'auto',
     hoverinfo: 'y+x',
-    //mode: 'lines+markers+text',
     marker: {
       opacity: 0.7,
       color: color,
@@ -313,12 +288,10 @@ chartDataHighLow = function (scores, highest) {
   }];
 }
 
-/* **************** */
-/* Charts potenciales */
-/* **************** */
+
+/* ─── Blindspot / avg-distance bar charts ────────────────────────────────── */
 
 drawPotentialBars = function (scores) {
-  // Config del layout
   const layout = {
     width: '100%',
     height: '100%',
@@ -345,16 +318,13 @@ drawPotentialBars = function (scores) {
     },
   };
 
-  // Dibuja el chart con plotly
   Plotly.newPlot('blindspots-bar', chartDataPotential(scores, 'blindspots'), layout, { displayModeBar: false, responsive: true });
   Plotly.newPlot('avgdistance-bar', chartDataPotential(scores, 'avgdistance'), layout, { displayModeBar: false, responsive: true });
 }
 
-// Datos para los charts de bindspot y avgdistance
 chartDataPotential = function (scores, chart) {
   let ordered = scores.filter(d => (d.self_score - d.avg_score) > 0)
     .sort((a, b) => d3.descending(a.self_score - a.avg_score, b.self_score - b.avg_score)).slice(0, 5).reverse();
-  //let color1 = d3.hsl("steelblue");
   let color1 = '#666';
   let color2 = '#522E91';
   let nombre = {
@@ -367,7 +337,6 @@ chartDataPotential = function (scores, chart) {
     ordered = scores.filter(d => (d.avg_global - d.avg_score) > 0)
       .sort((a, b) => d3.descending(a.avg_global - a.avg_score, b.avg_global - b.avg_score))
       .slice(0, 5).reverse();
-    //color1 = d3.hsl("DarkCyan");
     color1 = '#F47920';
     color2 = '#FCAF17';
     nombre = {
@@ -377,19 +346,15 @@ chartDataPotential = function (scores, chart) {
     data1 = ordered.map(d => d.avg_score.toFixed(2));
     data2 = ordered.map(d => d.avg_global.toFixed(2));
   }
-  //let color2 = color1.copy();
-  //color2.h +=15;
 
   const traces = [{
     data: data1,
     opacity: 0.8,
-    //color: color1.toString(),
     color: color1,
     nombre: nombre.trace1,
   }, {
     data: data2,
     opacity: 0.8,
-    //color: color2.toString(),
     color: color2,
     nombre: nombre.trace2,
   }];
@@ -417,8 +382,6 @@ chartDataPotential = function (scores, chart) {
 }
 
 
-
-// Word wrap
 const formatTextWrap = (text, maxLineLength) => {
   const words = text.replace(/[\r\n]+/g, ' ').split(' ');
   let lineLength = 0;
@@ -435,26 +398,26 @@ const formatTextWrap = (text, maxLineLength) => {
 }
 
 
+/* ─── Modals ──────────────────────────────────────────────────────────────── */
 
-// Modal de respuestas
 loadRespuestas = function (respuestas, comentarios) {
   let tabla = '<table class="table table-striped"><thead><tr><th>Concepto</th><th>Respuestas</th></tr></thead><tbody>';
   $.each(respuestas, function (id, respuesta) {
     const titulo = respuesta.info.titulo;
     const selfscore = respuesta.self_score;
     const scores = respuesta.scores_realizados;
-    tabla += '<tr><td>' + respuesta.info.id + ' ' + titulo + '</td><td>';
-    tabla += '<span class="respuesta-self">Autopuntaje: ' + selfscore + ' </span><br>';
+    tabla += '<tr><td>' + esc(respuesta.info.id) + ' ' + esc(titulo) + '</td><td>';
+    tabla += '<span class="respuesta-self">Autopuntaje: ' + esc(selfscore) + ' </span><br>';
     $.each(scores, function (nombre, score) {
-      tabla += '<span class="respuesta-nombre">' + nombre + ':</span> <span class="respuesta-score">' + score + '</span> <br> ';
+      tabla += '<span class="respuesta-nombre">' + esc(nombre) + ':</span> <span class="respuesta-score">' + esc(score) + '</span> <br> ';
     });
     tabla += '</td></tr>';
   });
   tabla += '</tbody></table>';
   if (comentarios?.realizados) {
-  let tablaComentarios = '<table class="table table-striped"><thead><tr><th>Comentario adicional para...</th><th>Comentario realizado</th></tr></thead><tbody>';
+    let tablaComentarios = '<table class="table table-striped"><thead><tr><th>Comentario adicional para...</th><th>Comentario realizado</th></tr></thead><tbody>';
     $.each(comentarios.realizados, function (nombre, comentario) {
-      tablaComentarios += '<tr><td>' + nombre + '</td><td>' + comentario + '</td></tr>';
+      tablaComentarios += '<tr><td>' + esc(nombre) + '</td><td>' + esc(comentario) + '</td></tr>';
     });
     tablaComentarios += '</tbody></table>';
     $('#respuestas-realizadas .modal-body').html('<div>' + tabla + '<hr>' + tablaComentarios + '</div>');
@@ -464,8 +427,6 @@ loadRespuestas = function (respuestas, comentarios) {
 }
 
 
-
-// Modal de puntuaciones recibidas
 loadPuntuaciones = function (respuestas, comentarios) {
   if (!Object.values(respuestas)[0].scores_recibidos_nombres) {
     $("#puntaje-recibido-btn").attr("style", "display: none !important");
@@ -477,11 +438,11 @@ loadPuntuaciones = function (respuestas, comentarios) {
     const selfscore = respuesta.self_score;
     const scores = respuesta.scores_recibidos;
     const nombres = respuesta.scores_recibidos_nombres;
-    tabla += '<tr><td>' + respuesta.info.id + ' ' + titulo + '</td><td>';
-    tabla += '<span class="respuesta-self">Autopuntaje: ' + selfscore + ' </span><br>';
+    tabla += '<tr><td>' + esc(respuesta.info.id) + ' ' + esc(titulo) + '</td><td>';
+    tabla += '<span class="respuesta-self">Autopuntaje: ' + esc(selfscore) + ' </span><br>';
     $.each(scores, function (index, score) {
       const nombre = nombres[index];
-      tabla += '<span class="respuesta-nombre">' + nombre + ':</span> <span class="respuesta-score">' + score + '</span> <br> ';
+      tabla += '<span class="respuesta-nombre">' + esc(nombre) + ':</span> <span class="respuesta-score">' + esc(score) + '</span> <br> ';
     });
     tabla += '</td></tr>';
   });
@@ -489,7 +450,7 @@ loadPuntuaciones = function (respuestas, comentarios) {
   if (comentarios?.recibidos) {
     let tablaComentarios = '<table class="table table-striped"><thead><tr><th>Comentario adicional de...</th><th>Comentario recibido</th></tr></thead><tbody>';
     $.each(comentarios.recibidos, function (nombre, comentario) {
-      tablaComentarios += '<tr><td>' + nombre + '</td><td>' + comentario + '</td></tr>';
+      tablaComentarios += '<tr><td>' + esc(nombre) + '</td><td>' + esc(comentario) + '</td></tr>';
     });
     tablaComentarios += '</tbody></table>';
     $('#puntajes-recibidos .modal-body').html('<div>' + tabla + '<hr>' + tablaComentarios + '</div>');
